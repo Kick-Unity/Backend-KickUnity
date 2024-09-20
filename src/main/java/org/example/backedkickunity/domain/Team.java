@@ -7,14 +7,17 @@ import java.util.List;
 @Entity
 public class Team {
 
-    @OneToMany(mappedBy = "team")
-    private List<User> users;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "team_id", updatable = false)
+    @Column(updatable = false)
     private Long id;
+
+    @Column(name = "team_id", nullable = false, unique = true)
+    private String teamId;
 
     @Column(name = "team_name", nullable = false, unique = true)
     private String teamName;
+
+    @OneToMany(mappedBy = "team")
+    private List<Member> members;
 }

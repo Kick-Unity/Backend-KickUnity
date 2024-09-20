@@ -1,24 +1,23 @@
 package org.example.backedkickunity.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Getter
 @Setter
-@Entity
-public class User {
-
-    @ManyToOne
-    private Team team;
+public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id", updatable = false)
+    @Column(updatable = false)
     private Long id;
 
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
+    @Column(name = "member_id", nullable = false, unique = true)
+    private String memberId; // 이메일 형식
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -30,5 +29,9 @@ public class User {
     private String phone;
 
     @Column(name = "team_id")
-    private Long team_id = null;
+    private Long teamIndex = null;
+
+    @ManyToOne
+    private Team team;
+
 }

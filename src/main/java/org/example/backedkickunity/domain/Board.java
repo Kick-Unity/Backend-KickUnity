@@ -10,6 +10,7 @@ public class Board {
     @Column(name = "board_id", updatable = false)
     private Long id;
 
+    @Column(name = "title", nullable = false)
     String title;
 
     Category category;

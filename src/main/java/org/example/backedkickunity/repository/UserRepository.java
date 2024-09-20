@@ -1,7 +1,0 @@
-package org.example.backedkickunity.repository;
-
-import org.example.backedkickunity.domain.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-public interface UserRepository extends JpaRepository<User, Long> {
-}
