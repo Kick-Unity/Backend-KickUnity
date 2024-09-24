@@ -1,10 +1,10 @@
 package org.example.backedkickunity.exception;
 
-public abstract class BaseException extends RuntimeException {
+//앞으로 정의할 모든 custom 예외의 부모 클래스 -> 모든 custom 예외 클래스들을 BaseException 타입으로 처리
+public abstract class BaseException extends RuntimeException{
 
-    public BaseException() {
-    }
-
-    public abstract BaseExceptionType exceptionType();
-
+    //BaseExceptionType을 반환하는 메서드
+    public abstract BaseExceptionType getExceptionType();
 }
+
+

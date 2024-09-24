@@ -1,6 +1,6 @@
 package org.example.backedkickunity.member;
 
-import org.example.backedkickunity.domain.Member;
+import org.example.backedkickunity.domain.member.Member;
 import org.example.backedkickunity.repository.MemberRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,6 @@ public class MemberRepositoryTest {
                 .email("qqqqq")
                 .name("냐미")
                 .password("1234")
-                .phone("12321")
                 .build();
 
         //create test

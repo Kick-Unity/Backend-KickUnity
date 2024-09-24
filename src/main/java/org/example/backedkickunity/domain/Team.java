@@ -1,6 +1,7 @@
 package org.example.backedkickunity.domain;
 
 import jakarta.persistence.*;
+import org.example.backedkickunity.domain.member.Member;
 
 import java.util.List;
 
