@@ -1,10 +1,10 @@
-package org.example.backedkickunity;
+package org.example.backendkickunity;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class BackedKickUnityApplicationTests {
+class BackendKickUnityApplicationTests {
 
     @Test
     void contextLoads() {
