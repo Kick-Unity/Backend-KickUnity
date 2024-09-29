@@ -35,9 +35,6 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Role role; //ADMIN(팀장), USER(일반사용자, 팀가입자)
 
-    @Column(name = "team_id")
-    private Long teamIndex = null;
-
     @ManyToOne
     private Team team;
 
