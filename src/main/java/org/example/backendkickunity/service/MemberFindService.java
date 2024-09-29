@@ -19,22 +19,14 @@ public class MemberFindService {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new MemberException(MemberExceptionType.MEMBER_NOT_EXIST));
 
-        validateMember(member);
-
         return member;
     }
 
-    public Member findByMemberIdAndPassword(String memberId, String password) {
-        Member member = memberRepository.findByMemberIdAndPassword(memberId, password)
+    public Member findByMemberIdAndPassword(String email, String password) {
+        Member member = memberRepository.findByEmailAndPassword(email, password)
                 .orElseThrow(() -> new MemberException(MemberExceptionType.MEMBER_INVALID_ID_AND_PASSWORD));
 
-        validateMember(member);
         return member;
     }
 
-    private void validateMember(Member member) {
-        if (member.isDeleted()) {
-            throw new MemberException(MemberExceptionType.MEMBER_DELETED);
-        }
-    }
 }

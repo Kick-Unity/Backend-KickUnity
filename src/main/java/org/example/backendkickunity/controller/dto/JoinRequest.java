@@ -10,9 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JoinRequest {
 
-    private String memberId;
-    private String password;
     private String email;
+    private String password;
     private String name;
 
 }

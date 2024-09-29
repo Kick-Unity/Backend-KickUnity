@@ -21,24 +21,20 @@ public class MemberService {
 
     @Transactional
     public Long join(JoinRequest joinRequest) {
-        String memberId = joinRequest.getMemberId();
-        String password = joinRequest.getPassword();
         String email = joinRequest.getEmail();
+        String password = joinRequest.getPassword();
         String name = joinRequest.getName();
 
-        // 아이디, 비밀번호, 이메일 형식 체크
-        checkMemberIdValid(memberId);
-        checkPasswordValid(password);
+        // 이메일, 비밀번호 형식 체크
         checkEmailValid(email);
+        checkPasswordValid(password);
 
-        // 아이디, 이메일 중복 체크
-        checkMemberIdUnique(memberId);
+        // 이메일 중복 체크
         checkEmailUnique(email);
 
         Member member = Member.builder()
-                .memberId(memberId)
-                .password(passwordEncoder.encode(password))
                 .email(email)
+                .password(passwordEncoder.encode(password))
                 .name(name)
                 .build();
         memberRepository.save(member);
@@ -48,11 +44,11 @@ public class MemberService {
 
     // 로그인 메서드 추가
     public Long login(LoginRequest loginRequest) {
-        String memberId = loginRequest.getMemberId();
+        String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 
         // 사용자가 존재하는지 확인
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new MemberException(MemberExceptionType.MEMBER_NOT_EXIST));
 
         // 비밀번호 검증
@@ -63,33 +59,9 @@ public class MemberService {
         return member.getId(); // 로그인 성공 시 사용자 정보를 반환
     }
 
-    private void checkMemberIdUnique(String memberId) {
-        if(memberRepository.existsByMemberId(memberId)){
-            throw new MemberException(MemberExceptionType.ALREADY_EXIST_MEMBER_ID);
-        }
-    }
-
-    private void checkEmailUnique(String memberId) {
-        if(memberRepository.existsByMemberId(memberId)){
+    private void checkEmailUnique(String email) {
+        if(memberRepository.existsByEmail(email)){
             throw new MemberException(MemberExceptionType.ALREADY_EXIST_EMAIL);
-        }
-    }
-
-    private void checkMemberIdValid(String memberId) {
-        // 사용자 아이디는영문, 숫자 조합의 6 ~ 10자
-        String MEMBER_ID_FORMAT = "^[a-z]{1}[a-z0-9]{5,10}$";
-
-        if(!memberId.matches(MEMBER_ID_FORMAT)){
-            throw new MemberException(MemberExceptionType.INVALID_MEMBER_ID_FORMAT);
-        }
-    }
-
-    private void checkPasswordValid(String password) {
-        // 사용자 비밀번호는 영문, 숫자, 하나 이상의 특수문자를 포함하는 8 ~ 16자
-        String PASSWORD_FORMAT = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[~!@#$%^&*()+|=])[A-Za-z\\d~!@#$%^&*()+|=]{8,16}$";
-
-        if(!password.matches(PASSWORD_FORMAT)){
-            throw new MemberException(MemberExceptionType.INVALID_PASSWORD_FORMAT);
         }
     }
 
@@ -99,6 +71,15 @@ public class MemberService {
 
         if(!email.matches(EMAIL_FORMAT)){
             throw new MemberException(MemberExceptionType.INVALID_EMAIL_FORMAT);
+        }
+    }
+
+    private void checkPasswordValid(String password) {
+        // 사용자 비밀번호는 영문, 숫자, 하나 이상의 특수문자를 포함하는 8 ~ 16자
+        String PASSWORD_FORMAT = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[~!@#$%^&*()+|=])[A-Za-z\\d~!@#$%^&*()+|=]{8,16}$";
+
+        if(!password.matches(PASSWORD_FORMAT)){
+            throw new MemberException(MemberExceptionType.INVALID_PASSWORD_FORMAT);
         }
     }
 
