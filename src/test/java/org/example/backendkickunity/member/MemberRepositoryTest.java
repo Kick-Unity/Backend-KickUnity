@@ -1,7 +1,7 @@
 package org.example.backendkickunity.member;
 
-import org.example.backendkickunity.domain.member.Member;
-import org.example.backendkickunity.repository.MemberRepository;
+import org.example.backendkickunity.member.domain.Member;
+import org.example.backendkickunity.member.repository.MemberRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
