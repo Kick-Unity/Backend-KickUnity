@@ -1,7 +1,7 @@
-package org.example.backendkickunity.article.repository;
+package org.example.backendkickunity.board.repository;
 
-import org.example.backendkickunity.article.domain.Article;
+import org.example.backendkickunity.board.domain.Board;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface BlogRepository extends JpaRepository<Article, Long> {
+public interface BoardRepository extends JpaRepository<Board, Long> {
 }

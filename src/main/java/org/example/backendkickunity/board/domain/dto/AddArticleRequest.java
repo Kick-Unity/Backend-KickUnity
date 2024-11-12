@@ -1,9 +1,9 @@
-package org.example.backendkickunity.article.domain.dto;
+package org.example.backendkickunity.board.domain.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.backendkickunity.article.domain.Article;
+import org.example.backendkickunity.board.domain.Board;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,8 +12,8 @@ public class AddArticleRequest {
     private String title;
     private String content;
 
-    public Article toEntity(){
-        return Article.builder()
+    public Board toEntity(){
+        return Board.builder()
                 .title(title)
                 .content(content)
                 .build();

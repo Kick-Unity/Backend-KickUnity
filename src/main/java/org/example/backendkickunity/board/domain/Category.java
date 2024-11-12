@@ -1,4 +1,4 @@
-package org.example.backendkickunity.article.domain;
+package org.example.backendkickunity.board.domain;
 
 public enum Category {
     ALL,

@@ -24,7 +24,7 @@ public class Member extends BaseEntity {
     @Column(name = "password", nullable = false) //변경 가능
     private String password;
 
-    @Column(name = "name", nullable = false) //변경 가능
+    @Column(name = "name", nullable = false) //닉네임 변경 가능
     private String name;
 
     @Column(name = "birth", nullable = false)

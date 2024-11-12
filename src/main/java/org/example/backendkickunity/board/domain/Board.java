@@ -1,4 +1,4 @@
-package org.example.backendkickunity.article.domain;
+package org.example.backendkickunity.board.domain;
 
 
 import jakarta.persistence.*;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Article {
+public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false)
@@ -25,7 +25,7 @@ public class Article {
 
 
     @Builder
-    public Article(String title, String content){
+    public Board(String title, String content){
         this.title = title;
         this.content = content;
     }

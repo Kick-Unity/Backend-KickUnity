@@ -1,49 +1,49 @@
-package org.example.backendkickunity.article.service;
+package org.example.backendkickunity.board.service;
 
 
-import org.example.backendkickunity.article.domain.Article;
-import org.example.backendkickunity.article.domain.dto.AddArticleRequest;
-import org.example.backendkickunity.article.domain.dto.UpdateArticleRequest;
-import org.example.backendkickunity.article.repository.BlogRepository;
+import org.example.backendkickunity.board.domain.Board;
+import org.example.backendkickunity.board.domain.dto.AddArticleRequest;
+import org.example.backendkickunity.board.domain.dto.UpdateArticleRequest;
+import org.example.backendkickunity.board.repository.BoardRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-public class BlogService {
+public class BoardService {
 
-    private final BlogRepository blogRepository;
+    private final BoardRepository boardRepository;
 
-    public BlogService(BlogRepository blogRepository){
-        this.blogRepository = blogRepository;
+    public BoardService(BoardRepository boardRepository){
+        this.boardRepository = boardRepository;
     }
 
-    public Article save(AddArticleRequest request){
-        Article article = new Article(request.getTitle(), request.getContent());
+    public Board save(AddArticleRequest request){
+        Board board = new Board(request.getTitle(), request.getContent());
 
-        return blogRepository.save(request.toEntity());
+        return boardRepository.save(request.toEntity());
     }
 
-    public List<Article> findAll() {
-        return blogRepository.findAll();
+    public List<Board> findAll() {
+        return boardRepository.findAll();
     }
 
-    public Article findById(Long id){
-        return blogRepository.findById(id)
+    public Board findById(Long id){
+        return boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("not found: " + id));
     }
 
     public void delete(Long id){
-        blogRepository.deleteById(id);
+        boardRepository.deleteById(id);
     }
 
     @Transactional
-    public Article update(long id, UpdateArticleRequest request){
-        Article article = blogRepository.findById(id)
+    public Board update(long id, UpdateArticleRequest request){
+        Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("not found" + id));
 
-        article.update(request.getTitle(), request.getContent());
-        return article;
+        board.update(request.getTitle(), request.getContent());
+        return board;
     }
 }

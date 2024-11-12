@@ -1,5 +1,6 @@
 package org.example.backendkickunity.member.service;
 
+import org.example.backendkickunity.member.dto.EmailCheckRequest;
 import org.example.backendkickunity.member.dto.JoinRequest;
 import org.example.backendkickunity.member.domain.Member;
 import org.example.backendkickunity.member.exception.MemberException;
@@ -20,6 +21,17 @@ public class MemberService {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
+    //이메일 체크
+    public void emailValidate(EmailCheckRequest emailCheckRequest) throws MemberException {
+        String email = emailCheckRequest.getEmail();
+
+        // 이메일 중복 체크
+        isExistEmail(email);
+
+        // 이메일 형식 체크
+        checkEmailValid(email);
+    }
+
     //회원가입
     @Transactional
     public Long join(JoinRequest joinRequest) {
@@ -28,11 +40,7 @@ public class MemberService {
         String name = joinRequest.getName();
         String birth = joinRequest.getBirth();
 
-        // 이메일 중복 체크
-        isExistEmail(email);
-
-        // 이메일, 비밀번호 형식 체크
-        checkEmailValid(email);
+        // 비밀번호 형식 체크
         checkPasswordValid(password);
 
         // 이름 중복 체크

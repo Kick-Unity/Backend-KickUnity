@@ -1,4 +1,4 @@
-package org.example.backendkickunity.article.domain.dto;
+package org.example.backendkickunity.board.domain.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
