@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class MemberDTO {
+public class MypageResponse {
 
     private String team;
     private String email;

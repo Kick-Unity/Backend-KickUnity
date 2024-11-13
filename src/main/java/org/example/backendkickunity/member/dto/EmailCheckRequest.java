@@ -11,5 +11,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class EmailCheckRequest {
     private String email;      // 이메일
-    private String authNum;    // 인증번호
+    private String authNum; // 인증번호
 }
