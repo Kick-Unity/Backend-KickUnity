@@ -1,14 +1,14 @@
-package org.example.backendkickunity.board.domain.dto;
+package org.example.backendkickunity.board.dto;
 
 import lombok.Getter;
 import org.example.backendkickunity.board.domain.Board;
 
 @Getter
-public class ArticleResponse {
+public class BoardResponse {
     private String title;
     private String content;
 
-    public ArticleResponse(Board board){
+    public BoardResponse(Board board){
         this.title = board.getTitle();
         this.content = board.getContent();
     }

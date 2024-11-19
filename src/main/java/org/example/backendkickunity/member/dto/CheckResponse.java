@@ -1,0 +1,11 @@
+package org.example.backendkickunity.member.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class ChangeResponse {
+    private boolean success;  // 성공 여부
+    private String message;   // 응답 메시지
+}
