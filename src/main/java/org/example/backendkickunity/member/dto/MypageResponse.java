@@ -14,4 +14,6 @@ public class MypageResponse {
     private String name;
     private String birth;
 
+    public MypageResponse() {}
+
 }

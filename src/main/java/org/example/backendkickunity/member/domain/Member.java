@@ -2,8 +2,11 @@ package org.example.backendkickunity.member.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.backendkickunity.board.domain.Board;
 import org.example.backendkickunity.global.entity.BaseEntity;
 import org.example.backendkickunity.team.domain.Team;
+
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -12,11 +15,6 @@ import org.example.backendkickunity.team.domain.Team;
 @Getter
 @Setter
 public class Member extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(updatable = false)
-    private Long id; //primary key
 
     @Column(name = "email", nullable = false, unique = true)
     private String email; //unique key
@@ -31,9 +29,12 @@ public class Member extends BaseEntity {
     private String birth;
 
     @Column(name = "role")
-    private String role; //ADMIN(팀장), USER(일반사용자, 팀가입자)
+    private MemberRole role; //ADMIN(팀장), USER(일반사용자, 팀가입자)
 
     @ManyToOne
     private Team team;
+
+    @OneToMany(mappedBy = "member") // Board 엔티티의 member 필드와 매핑
+    private List<Board> boards;
 
 }

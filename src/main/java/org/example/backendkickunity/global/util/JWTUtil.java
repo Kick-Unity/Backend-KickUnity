@@ -1,6 +1,7 @@
 package org.example.backendkickunity.global.util;
 
 import io.jsonwebtoken.Jwts;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,7 @@ import java.util.Date;
 
 //JWT 발급, 인증
 @Component
+@Slf4j
 public class JWTUtil {
 
     private SecretKey secretKey;
@@ -51,4 +53,5 @@ public class JWTUtil {
                 .signWith(secretKey)
                 .compact();
     }
+
 }

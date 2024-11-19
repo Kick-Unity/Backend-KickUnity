@@ -22,7 +22,6 @@ public enum MemberExceptionType implements BaseExceptionType {
     MEMBER_INVALID_ID_AND_PASSWORD(HttpStatus.UNAUTHORIZED, "MEMBER_002", "아이디나 비밀번호가 다릅니다."),
     MEMBER_WRONG_PASSWORD(HttpStatus.UNAUTHORIZED, "MEMBER_003", "비밀번호가 일치하지 않습니다."),
     MEMBER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "MEMBER_004", "사용자가 인증되지 않았습니다.");
-
     private HttpStatus httpStatus;
     private String errorCode;
     private String errorMessage;

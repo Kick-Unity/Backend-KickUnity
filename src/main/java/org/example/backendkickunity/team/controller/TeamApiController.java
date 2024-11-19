@@ -1,2 +1,98 @@
-package org.example.backendkickunity.team.controller;public class TeamApiController {
+package org.example.backendkickunity.team.controller;
+
+import lombok.extern.slf4j.Slf4j;
+import org.example.backendkickunity.auth.AuthService;
+import org.example.backendkickunity.team.dto.AddTeamMemberRequest;
+import org.example.backendkickunity.team.dto.AddTeamRequest;
+import org.example.backendkickunity.team.dto.UpdateTeamRequest;
+import org.example.backendkickunity.team.service.TeamService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@Slf4j
+@RestController
+@RequestMapping("/api/team")
+public class TeamApiController {
+
+    private final TeamService teamService;
+    private final AuthService authService;
+
+    public TeamApiController(TeamService teamService, AuthService authService) {
+        this.teamService = teamService;
+        this.authService = authService;
+    }
+
+    // 팀 생성
+    @PostMapping("/create")
+    public ResponseEntity<Long> createTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody AddTeamRequest request) {
+
+        // Authorization header 에서 로그인 회원 이메일 추출
+        String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
+
+        // 팀 생성
+        Long teamId = teamService.createTeam(email, request.getTeamName(), request.getTeamCategory(),
+                request.getTeamRegion(), request.getTeamAge(),
+                request.getTeamSize());
+
+        log.info("팀 생성 완료. 팀 이름: {}", request.getTeamName());
+        return ResponseEntity.status(HttpStatus.CREATED).body(teamId);
+    }
+
+    // 팀 정보 수정
+    @PutMapping("/{teamId}")
+    public ResponseEntity<String> updateTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @PathVariable Long teamId, @RequestBody UpdateTeamRequest request) {
+        // Authorization header 에서 로그인 회원 이메일 추출
+        String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
+
+        // 팀 정보 수정
+        teamService.updateTeam(email, teamId, request.getTeamCategory(), request.getTeamRegion(),
+                request.getTeamAge(), request.getTeamSize());
+
+        log.info("팀 정보 수정 완료. 팀 ID: {}", teamId);
+        return ResponseEntity.ok("팀 정보가 성공적으로 수정되었습니다.");
+    }
+
+    // 팀원 추가
+    @PostMapping("/{teamId}/addMember")
+    public ResponseEntity<String> addMemberToTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @PathVariable Long teamId, @RequestBody AddTeamMemberRequest request) {
+
+        // Authorization header 에서 로그인 회원 이메일 추출
+        String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
+
+        // 멤버 추가, 추가된 멤버 정보 저장
+        String newMemberName = teamService.addMemberToTeam(email, teamId, request.getMemberEmail());
+
+        log.info("팀원 추가 완료. 팀 ID: {},  추가된 팀원: {}", teamId, newMemberName);
+        return ResponseEntity.status(HttpStatus.OK).body(newMemberName);
+    }
+
+    // 팀원 삭제
+    @DeleteMapping("/{teamId}/removeMember/{memberId}")
+    public ResponseEntity<String> removeMemberFromTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @PathVariable Long teamId, @PathVariable Long memberId) {
+
+        // Authorization header 에서 로그인 회원 이메일 추출
+        String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
+
+        // 멤버 삭제, 삭제된 멤버 정보 저장
+        String deletedMemberName = teamService.removeMemberFromTeam(email, teamId, memberId);
+
+        log.info("팀원 삭제 완료. 팀 ID: {}, 삭제된 팀원: {}", teamId, deletedMemberName);
+        return ResponseEntity.status(HttpStatus.OK).body(deletedMemberName);
+    }
+
+    // 팀 삭제
+    @DeleteMapping("/{teamId}")
+    public ResponseEntity<String> deleteTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @PathVariable Long teamId) {
+        // Authorization header 에서 로그인 회원 이메일 추출
+        String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
+
+        // 팀 삭제
+        teamService.deleteTeam(email, teamId);
+
+        return ResponseEntity.status(HttpStatus.OK).body("팀 삭제가 완료되었습니다.");
+    }
+
+
 }

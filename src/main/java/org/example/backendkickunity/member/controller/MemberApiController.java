@@ -2,16 +2,14 @@ package org.example.backendkickunity.member.controller;
 
 import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
-import org.example.backendkickunity.auth.util.MemberAuthorizationUtil;
+import org.example.backendkickunity.auth.AuthService;
 import org.example.backendkickunity.member.domain.Member;
-import org.example.backendkickunity.member.dto.EmailCheckRequest;
-import org.example.backendkickunity.member.dto.EmailCheckResponse;
-import org.example.backendkickunity.member.dto.JoinRequest;
-import org.example.backendkickunity.member.dto.MypageResponse;
-import org.example.backendkickunity.member.repository.MemberRepository;
+import org.example.backendkickunity.member.dto.*;
+import org.example.backendkickunity.member.exception.MemberException;
 import org.example.backendkickunity.member.service.EmailAuthService;
 import org.example.backendkickunity.member.service.MemberService;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,22 +18,24 @@ import java.io.UnsupportedEncodingException;
 
 @Slf4j
 @RestController
+@RequestMapping("/api/member")
 public class MemberApiController {
 
     private final MemberService memberService;
     private final EmailAuthService emailAuthService;
-    private final MemberRepository memberRepository;
     private final ModelMapper modelMapper; // ModelMapper 주입
+    private final AuthService authService;
 
 
-    public MemberApiController(MemberService memberService, EmailAuthService emailAuthService, MemberRepository memberRepository, ModelMapper modelMapper) {
+
+    public MemberApiController(MemberService memberService, EmailAuthService emailAuthService, ModelMapper modelMapper, AuthService authService) {
         this.memberService = memberService;
         this.emailAuthService = emailAuthService;
-        this.memberRepository = memberRepository;
         this.modelMapper = modelMapper;
+        this.authService = authService;
     }
 
-    @PostMapping("/api/member/emailSend")
+    @PostMapping("/emailSend")
     public ResponseEntity<String> emailSend(@RequestBody EmailCheckRequest request) throws MessagingException, UnsupportedEncodingException {
 
         // 이메일 유효성 확인
@@ -50,7 +50,7 @@ public class MemberApiController {
 
 
     // 이메일 인증번호 확인
-    @PostMapping("/api/member/emailCheck")
+    @PostMapping("/emailCheck")
     public ResponseEntity<EmailCheckResponse> emailCheck(@RequestBody EmailCheckRequest request) {
 
         // 클라이언트에서 받은 이메일과 인증번호를 로그로 출력
@@ -69,8 +69,8 @@ public class MemberApiController {
 
     }
 
-    @PostMapping("/api/member/join")
-    public ResponseEntity<Long> addMember(@RequestBody JoinRequest request) throws MessagingException, UnsupportedEncodingException {
+    @PostMapping("/join")
+    public ResponseEntity<Long> addMember(@RequestBody JoinRequest request) {
 
         Long savedMemberId = memberService.join(request);
 
@@ -78,18 +78,20 @@ public class MemberApiController {
                 .body(savedMemberId);
     }
 
-    @GetMapping("/api/member/myPage")
-    public ResponseEntity<?> memberInfo() {
-        // 로그인된 사용자의 이메일을 가져오기
-        String email = MemberAuthorizationUtil.getLoginMemberEmail();
+
+    @GetMapping("/myPage")
+    public ResponseEntity<?> memberInfo(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+
+        // Authorization header 에서 이메일 추출
+        String email = authService.extractEmailFromToken(authorizationHeader);
 
         if (email == null) {
-            // 사용자가 인증되지 않았으면 UNAUTHORIZED 응답 반환
+            // 토큰이 유효하지 않거나 이메일을 추출할 수 없는 경우
             return new ResponseEntity<>("사용자가 인증되지 않았습니다.", HttpStatus.UNAUTHORIZED);
         }
 
         // 해당 이메일로 회원을 찾기
-        Member member = memberRepository.findByEmail(email);
+        Member member = memberService.findByMemberEmail(email);
 
         if (member == null) {
             // 회원이 존재하지 않으면 NOT_FOUND 응답 반환
@@ -103,7 +105,60 @@ public class MemberApiController {
         return new ResponseEntity<>(mypageResponse, HttpStatus.OK);
     }
 
+    // 이름 변경 API
+    @PostMapping("/changeName")
+    public ResponseEntity<CheckResponse> changeName(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                    @RequestBody ChangeNameRequest request) {
 
+        // Authorization header 에서 이메일 추출
+        String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
+
+        // MemberService 에서 이름 변경 처리
+        CheckResponse response = memberService.changeName(email, request.getNewName());
+
+        // 처리 결과에 따라 적절한 응답 반환
+        if (response.isSuccess()) {
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // 비밀번호 변경 API
+    @PostMapping("/changePassword")
+    public ResponseEntity<CheckResponse> changePassword(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                        @RequestBody ChangePasswordRequest request) {
+        // Authorization header 에서 이메일 추출
+        String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
+
+        try {
+            // MemberService 에서 비밀번호 변경 처리
+            CheckResponse response = memberService.changePassword(email, request.getOldPassword(), request.getNewPassword());
+
+            // 비밀번호 변경 성공
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        } catch (MemberException e) {
+            // 예외가 발생하면 전역 예외 처리기로 넘김
+            CheckResponse errorResponse = new CheckResponse(false, e.getMessage());
+            return new ResponseEntity<>(errorResponse, e.getExceptionType().getHttpStatus());
+        }
+    }
+
+    // 회원 삭제 API
+    @DeleteMapping("/deleteMember")
+    public ResponseEntity<CheckResponse> deleteMember(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                      @RequestBody DeleteMemberRequest request) {
+        String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
+        try {
+            // 서비스 레이어에서 회원 삭제
+            CheckResponse response = memberService.deleteMember(email, request.getPassword());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (MemberException e) {
+            // 전역 예외 처리기로 예외를 처리
+            return new ResponseEntity<>(new CheckResponse(false, e.getMessage()), e.getExceptionType().getHttpStatus());
+        }
+    }
 
 
 }

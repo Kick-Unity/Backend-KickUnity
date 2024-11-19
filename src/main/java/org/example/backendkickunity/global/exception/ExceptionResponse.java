@@ -1,32 +1,38 @@
 package org.example.backendkickunity.global.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 @Getter
-@AllArgsConstructor
-public class ExceptionResponse{
+@NoArgsConstructor  // 기본 생성자 생성
+@AllArgsConstructor  // 모든 필드를 위한 생성자 생성
+public class ExceptionResponse {
+    private String message;  // 예외 메시지
+    private String errorCode;  // 예외 코드
 
-    private final String message;
-
-
-    public static ExceptionResponse from(String e){
-        return new ExceptionResponse(e);
+    // BaseExceptionType을 통해 메시지와 에러 코드 생성
+    public static ExceptionResponse from(BaseExceptionType exceptionType) {
+        return new ExceptionResponse(exceptionType.getErrorMessage(), exceptionType.getErrorCode());
     }
 
-    public static ExceptionResponse from(MethodArgumentNotValidException e){
-        StringBuilder message = new StringBuilder();
+    // String 메시지를 처리하는 메서드 추가
+    public static ExceptionResponse from(String message) {
+        return new ExceptionResponse(message, "UNKNOWN_ERROR");  // 에러 코드 기본값 설정
+    }
 
-        for(FieldError fieldError : e.getBindingResult().getFieldErrors()){
+    // MethodArgumentNotValidException 처리 (검증 예외 처리)
+    public static ExceptionResponse from(MethodArgumentNotValidException e) {
+        StringBuilder message = new StringBuilder();
+        StringBuilder errorCode = new StringBuilder();
+
+        for (FieldError fieldError : e.getBindingResult().getFieldErrors()) {
             message.append(fieldError.getDefaultMessage()).append(" ");
+            errorCode.append(fieldError.getField()).append(": ").append(fieldError.getDefaultMessage()).append(" ");
         }
 
-        return new ExceptionResponse(new String(message));
-    }
-
-    public String getMessage(){
-        return message;
+        return new ExceptionResponse(message.toString(), errorCode.toString());
     }
 }

@@ -16,9 +16,8 @@ public class MailService {
 
     private final JavaMailSender mailSender;
 
-
     //인증 메일 생성
-    public MimeMessage createEmailForm(String email, String authNum) throws MessagingException, UnsupportedEncodingException {
+    public MimeMessage createEmailForm(String email, String authNum) throws MessagingException{
 
         String fromEmail = "noreply.kickunity@gmail.com"; //보내는 사람
         String toEmail  = email; // 받는 사람
