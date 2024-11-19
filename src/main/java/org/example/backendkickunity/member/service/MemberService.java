@@ -178,11 +178,4 @@ public class MemberService {
 
         return member;
     }
-
-    public Member findByMemberIdAndPassword(String email, String password) {
-        Member member = memberRepository.findByEmailAndPassword(email, password)
-                .orElseThrow(() -> new MemberException(MemberExceptionType.MEMBER_INVALID_ID_AND_PASSWORD));
-
-        return member;
-    }
 }

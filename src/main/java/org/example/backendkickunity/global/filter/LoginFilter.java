@@ -3,7 +3,6 @@ package org.example.backendkickunity.global.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.backendkickunity.member.dto.LoginRequest;
@@ -59,10 +58,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String username = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 
-        // 스프링 시큐리티에서 username, password 검증을 위해 token에 담기
+        // 스프링 시큐리티에서 username, password 검증을 위해 token 에 담기
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
 
-        // token에 담은 검증을 위한 AuthenticationManager 전달
+        // token 에 담은 검증을 위한 AuthenticationManager 전달
         return authenticationManager.authenticate(authToken);
     }
 
@@ -88,10 +87,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // LoginResponse 객체 생성
         LoginResponse loginResponse = new LoginResponse(access, refresh);
 
-        // 응답 설정: 응답 타입을 JSON으로 설정
+        // 응답 설정: 응답 타입을 JSON 으로 설정
         response.setContentType("application/json");
         ObjectMapper objectMapper = new ObjectMapper();
-        response.getWriter().write(objectMapper.writeValueAsString(loginResponse)); // LoginResponse 객체를 JSON으로 직렬화하여 응답 본문에 작성
+        response.getWriter().write(objectMapper.writeValueAsString(loginResponse)); // LoginResponse 객체를 JSON 으로 직렬화하여 응답 본문에 작성
 
         // 응답 상태 코드 설정
         response.setStatus(HttpStatus.OK.value());

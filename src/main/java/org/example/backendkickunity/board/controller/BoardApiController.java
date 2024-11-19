@@ -19,7 +19,6 @@ import java.util.List;
 @RequestMapping("/api/board")
 public class BoardApiController {
 
-
     private final BoardService boardService;
     private final AuthService authService;
 
@@ -40,22 +39,24 @@ public class BoardApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedBoard);
     }
 
-    // 모든 게시글 조회
-    @GetMapping
-    public ResponseEntity<List<Board>> getAllBoards() {
-        log.info("모든 게시글 조회 요청을 받았습니다.");
-        List<Board> boards = boardService.findAll();
+
+    // 카테고리 별(게시판 별) 게시글 조회
+    @GetMapping("/category/{category}")
+    public ResponseEntity<List<Board>> getBoardsByCategory(@PathVariable String category) {
+        log.info("카테고리 '{}' 게시글 조회 요청을 받았습니다.", category);
+
+        List<Board> boards = boardService.findBoardsByCategory(category);
 
         if (boards.isEmpty()) {
-            log.warn("게시글이 없습니다.");
+            log.warn("카테고리 '{}'의 게시글이 없습니다.", category);
             return ResponseEntity.noContent().build();
         }
 
-        log.info("게시글 {}개가 성공적으로 조회되었습니다.", boards.size());
+        log.info("카테고리 '{}'의 게시글 {}개가 성공적으로 조회되었습니다.", category, boards.size());
         return ResponseEntity.ok(boards);
     }
 
-    // 로그인한 회원의 게시글 조회
+    // 로그인한 회원의 게시글 -> '내가 쓴 글'  조회
     @GetMapping("/myBoards")
     public ResponseEntity<List<Board>> getMyBoards(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         // Authorization header에서 로그인 회원 이메일 추출

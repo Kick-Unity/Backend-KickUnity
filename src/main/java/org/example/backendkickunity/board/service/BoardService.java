@@ -47,8 +47,16 @@ public class BoardService {
     }
 
     // 모든 게시글 조회
-    public List<Board> findAll() {
+    public List<Board> findAllBoards() {
         return boardRepository.findAll();
+    }
+
+    // 특정 카테고리 게시글 조회
+    public List<Board> findBoardsByCategory(String category) {
+        if ("ALL".equalsIgnoreCase(category)) {
+            return findAllBoards(); // "ALL"일 경우 모든 게시글을 조회
+        }
+        return boardRepository.findAllByCategory(BoardCategory.valueOf(category)); // 특정 카테고리 조회
     }
 
     // 로그인한 회원 '내가 쓴 글' 조회
@@ -73,7 +81,6 @@ public class BoardService {
         return board;
     }
 
-
     // 게시글 삭제
     @Transactional
     public boolean delete(String email, Long id) {
@@ -92,13 +99,23 @@ public class BoardService {
 
     // 제목에 키워드가 포함된 게시글 검색
     public List<Board> searchBoards(String boardCategory, String keyword) {
-        // String 값으로 들어온 category를 BoardCategory enum으로 변환
-        BoardCategory category = BoardCategory.valueOf(boardCategory);
+        BoardCategory category = null;
 
-        if (keyword != null && !keyword.isEmpty()) {
-            return boardRepository.findAllByCategoryAndTitleContainingOrCategoryAndContentContaining(category,keyword);  // 제목에 키워드 포함된 게시글만 검색
+        // BoardCategory enum을 통한 카테고리 필터링
+        if (boardCategory != null && !boardCategory.isEmpty()) {
+            try {
+                category = BoardCategory.valueOf(boardCategory.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new BoardException(BoardExceptionType.INVALID_CATEGORY);
+            }
         }
-        return findAll();  // 키워드가 없으면 모든 게시글 조회
-    }
 
+        if (category != null) {
+            // 카테고리가 지정되면 해당 카테고리 내에서 키워드 검색
+            return boardRepository.findAllByCategoryAndTitleContainingOrCategoryAndContentContaining(category, keyword);
+        } else {
+            // 카테고리가 지정되지 않으면 모든 게시글에서 키워드 검색
+            return boardRepository.findAllByTitleContainingOrContentContaining(keyword);
+        }
+    }
 }
