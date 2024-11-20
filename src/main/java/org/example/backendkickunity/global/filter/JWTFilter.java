@@ -6,7 +6,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.backendkickunity.member.domain.Member;
-import org.example.backendkickunity.member.domain.MemberRole;
 import org.example.backendkickunity.member.dto.CustomUserDetails;
 import org.example.backendkickunity.global.util.JWTUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -69,13 +68,10 @@ public class JWTFilter extends OncePerRequestFilter {
         String username = jwtUtil.getUsername(accessToken);
         String role = jwtUtil.getRole(accessToken);
 
-        // role을 MemberRole로 변환 (Enum으로 변환)
-        MemberRole memberRole = MemberRole.valueOf(role); // String -> MemberRole 변환
-
 
         Member member = new Member();
         member.setName(username);
-        member.setRole(memberRole);
+        member.setRole(role);
         CustomUserDetails customUserDetails = new CustomUserDetails(member);
 
         // 스프링 시큐리티 인증 토큰 생성

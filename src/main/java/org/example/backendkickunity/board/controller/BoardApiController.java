@@ -39,7 +39,6 @@ public class BoardApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedBoard);
     }
 
-
     // 카테고리 별(게시판 별) 게시글 조회
     @GetMapping("/category/{category}")
     public ResponseEntity<List<Board>> getBoardsByCategory(@PathVariable String category) {
@@ -56,7 +55,7 @@ public class BoardApiController {
         return ResponseEntity.ok(boards);
     }
 
-    // 로그인한 회원의 게시글 -> '내가 쓴 글'  조회
+    // 로그인한 회원의 게시글 -> '내가 쓴 글' 조회
     @GetMapping("/myBoards")
     public ResponseEntity<List<Board>> getMyBoards(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         // Authorization header에서 로그인 회원 이메일 추출

@@ -56,7 +56,12 @@ public class BoardService {
         if ("ALL".equalsIgnoreCase(category)) {
             return findAllBoards(); // "ALL"일 경우 모든 게시글을 조회
         }
-        return boardRepository.findAllByCategory(BoardCategory.valueOf(category)); // 특정 카테고리 조회
+        try {
+            BoardCategory boardCategory = BoardCategory.valueOf(category.toUpperCase());
+            return boardRepository.findAllByCategory(boardCategory); // 특정 카테고리 조회
+        } catch (IllegalArgumentException e) {
+            throw new BoardException(BoardExceptionType.INVALID_CATEGORY); // 잘못된 카테고리 값에 대한 처리
+        }
     }
 
     // 로그인한 회원 '내가 쓴 글' 조회

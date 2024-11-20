@@ -9,7 +9,8 @@ public enum AuthExceptionType implements BaseExceptionType {
     ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, "AUTH_002", "계정이 잠겨 있습니다."),
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH_003", "토큰이 만료되었습니다."),
     UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "AUTH_004", "권한이 없는 접근입니다."),
-    INVALID_AUTHORIZATION_HEADER(HttpStatus.UNAUTHORIZED, "AUTH_005", "Authorization header가 잘못되었습니다.");  // 새로운 예외 추가
+    INVALID_AUTHORIZATION_HEADER(HttpStatus.UNAUTHORIZED, "AUTH_005", "Authorization header가 잘못되었습니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_006", "토큰 정보가 유효하지 않습니다.");  // 새로운 예외 추가
 
 
     private final HttpStatus httpStatus;

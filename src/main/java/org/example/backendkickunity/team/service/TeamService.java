@@ -3,7 +3,6 @@ package org.example.backendkickunity.team.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.backendkickunity.member.domain.Member;
-import org.example.backendkickunity.member.domain.MemberRole;
 import org.example.backendkickunity.member.exception.MemberException;
 import org.example.backendkickunity.member.exception.MemberExceptionType;
 import org.example.backendkickunity.member.repository.MemberRepository;
@@ -52,7 +51,7 @@ public class TeamService {
         team.getMembers().add(leader);  // 팀의 첫 번째 멤버로 팀장 추가
         // 팀장 정보 수정
         leader.setTeam(team); // 팀장의 팀 정보 삽입
-        leader.setRole(MemberRole.ADMIN); // 팀장 역할 부여
+        leader.setRole("ROLE_ADMIN"); // 팀장 역할 부여
 
         memberRepository.save(leader); // 팀장 정보 업데이트
         teamRepository.save(team); // 팀 정보 저장
@@ -111,7 +110,7 @@ public class TeamService {
 
         // 추가된 멤버의 팀 정보 설정
         newMember.setTeam(team);
-        newMember.setRole(MemberRole.USER); // 기본 역할을 일반 사용자로 설정
+        newMember.setRole("ROLE_USER"); // 기본 역할을 일반 사용자로 설정
 
         memberRepository.save(newMember); // 새로운 팀원 저장
         teamRepository.save(team); // 수정된 팀 정보 저장
@@ -146,7 +145,7 @@ public class TeamService {
         // 팀에서 멤버 삭제
         team.getMembers().remove(deleteMember); // 팀에서 멤버 제거
         deleteMember.setTeam(null); // 멤버의 팀 정보 제거
-        deleteMember.setRole(MemberRole.USER); // 역할을 기본값인 ROLE_USER로 설정
+        deleteMember.setRole("ROLE_USER"); // 역할을 기본값인 ROLE_USER로 설정
 
         // 수정된 멤버 정보 저장
         memberRepository.save(deleteMember);
@@ -176,7 +175,7 @@ public class TeamService {
         // 팀에 속한 멤버들의 팀 정보 제거
         for (Member member : team.getMembers()) {
             member.setTeam(null);  // 팀 정보를 null 로 설정하여 팀에서 제거
-            member.setRole(MemberRole.USER);  // 역할을 기본 USER 로 변경
+            member.setRole("ROLE_USER");  // 역할을 기본 USER 로 변경
         }
 
         // 멤버 정보 일괄 업데이트

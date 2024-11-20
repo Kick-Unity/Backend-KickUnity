@@ -29,7 +29,7 @@ public class Member extends BaseEntity {
     private String birth;
 
     @Column(name = "role")
-    private MemberRole role; //ADMIN(팀장), USER(일반사용자, 팀가입자)
+    private String role; //ADMIN(팀장), USER(일반사용자, 팀가입자)
 
     @ManyToOne
     private Team team;

@@ -22,11 +22,19 @@ public class CustomUserDetailsService implements UserDetailsService {
         //DB에서 조회
         Member member = memberRepository.findByEmail(email);
 
-        if (member != null) {
+        if (member == null) {
+            throw new UsernameNotFoundException("User not found with email: " + email);
+        } else {
             //MemberDetails에 담아 리턴하면 AuthenticationManager가 검증
-            return new CustomUserDetails(member);
+             return new CustomUserDetails(member);
         }
 
-        return null;
+
+//        if (member != null) {
+//            //MemberDetails에 담아 리턴하면 AuthenticationManager가 검증
+//            return new CustomUserDetails(member);
+//        }
+//
+//        return null;
     }
 }

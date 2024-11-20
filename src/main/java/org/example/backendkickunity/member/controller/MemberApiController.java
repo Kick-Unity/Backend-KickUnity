@@ -3,12 +3,10 @@ package org.example.backendkickunity.member.controller;
 import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.example.backendkickunity.auth.AuthService;
-import org.example.backendkickunity.member.domain.Member;
 import org.example.backendkickunity.member.dto.*;
 import org.example.backendkickunity.member.exception.MemberException;
 import org.example.backendkickunity.member.service.EmailAuthService;
 import org.example.backendkickunity.member.service.MemberService;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,15 +21,13 @@ public class MemberApiController {
 
     private final MemberService memberService;
     private final EmailAuthService emailAuthService;
-    private final ModelMapper modelMapper; // ModelMapper 주입
     private final AuthService authService;
 
 
 
-    public MemberApiController(MemberService memberService, EmailAuthService emailAuthService, ModelMapper modelMapper, AuthService authService) {
+    public MemberApiController(MemberService memberService, EmailAuthService emailAuthService,  AuthService authService) {
         this.memberService = memberService;
         this.emailAuthService = emailAuthService;
-        this.modelMapper = modelMapper;
         this.authService = authService;
     }
 
@@ -78,28 +74,18 @@ public class MemberApiController {
                 .body(savedMemberId);
     }
 
-
     @GetMapping("/myPage")
     public ResponseEntity<?> memberInfo(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
 
         // Authorization header 에서 이메일 추출
-        String email = authService.extractEmailFromToken(authorizationHeader);
+        String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
 
         if (email == null) {
             // 토큰이 유효하지 않거나 이메일을 추출할 수 없는 경우
             return new ResponseEntity<>("사용자가 인증되지 않았습니다.", HttpStatus.UNAUTHORIZED);
         }
 
-        // 해당 이메일로 회원을 찾기
-        Member member = memberService.findByMemberEmail(email);
-
-        if (member == null) {
-            // 회원이 존재하지 않으면 NOT_FOUND 응답 반환
-            return new ResponseEntity<>("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
-        }
-
-        // ModelMapper를 사용하여 Member 엔티티를 MypageResponse DTO로 변환
-        MypageResponse mypageResponse = modelMapper.map(member, MypageResponse.class);
+        MypageResponse mypageResponse = memberService.myInfoReturn(email);
 
         // 변환된 MypageResponse를 OK 응답으로 반환
         return new ResponseEntity<>(mypageResponse, HttpStatus.OK);

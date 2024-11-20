@@ -1,10 +1,10 @@
 package org.example.backendkickunity.member.service;
 
-import org.example.backendkickunity.member.domain.MemberRole;
 import org.example.backendkickunity.member.dto.CheckResponse;
 import org.example.backendkickunity.member.dto.EmailCheckRequest;
 import org.example.backendkickunity.member.dto.JoinRequest;
 import org.example.backendkickunity.member.domain.Member;
+import org.example.backendkickunity.member.dto.MypageResponse;
 import org.example.backendkickunity.member.exception.MemberException;
 import org.example.backendkickunity.member.exception.MemberExceptionType;
 import org.example.backendkickunity.member.repository.MemberRepository;
@@ -56,11 +56,30 @@ public class MemberService {
         member.setPassword(bCryptPasswordEncoder.encode(password));
         member.setName(name);
         member.setBirth(birth);
-        member.setRole(MemberRole.valueOf("ROLE_USER"));
+        member.setRole("ROLE_USER");
 
         memberRepository.save(member);
 
         return member.getId();
+    }
+
+    //마이페이지
+    public MypageResponse myInfoReturn(String email) {
+
+        Member member = memberRepository.findByEmail(email);
+        if (member == null) {
+            throw new MemberException(MemberExceptionType.MEMBER_NOT_EXIST);
+        }
+
+        String teamName = "소속팀이 없습니다.";
+        if (!(member.getTeam() == null)){
+            teamName = member.getTeam().getTeamName();
+        }
+
+        MypageResponse mypageResponse = new MypageResponse(teamName, member.getEmail(), member.getName(), member.getBirth());
+
+        return mypageResponse;
+
     }
 
     //이름 변경
