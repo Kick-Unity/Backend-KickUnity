@@ -6,7 +6,6 @@ import org.example.backendkickunity.board.domain.Board;
 import org.example.backendkickunity.board.dto.*;
 import org.example.backendkickunity.board.service.BoardService;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,31 +26,26 @@ public class BoardApiController {
 
     // 게시글 등록
     @PostMapping
-    public ResponseEntity<Board> addBoard(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody AddBoardRequest request) {
+    public ResponseEntity<BoardDetailResponse> addBoard(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody AddBoardRequest request) {
         // Authorization header에서 로그인 회원 이메일 추출
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
         log.info("사용자 이메일 '{}'으로 게시글 등록 요청을 받았습니다.", email);
 
         Board savedBoard = boardService.save(email, request);
         log.info("게시글이 성공적으로 생성되었습니다. 게시글 ID: {}", savedBoard.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedBoard);
-    }
+        // Board 엔티티를 BoardDetailResponse DTO로 변환
+        BoardDetailResponse boardDetailResponse = new BoardDetailResponse(
+                savedBoard.getId(),
+                savedBoard.getTitle(),
+                savedBoard.getContent(),
+                savedBoard.getMember() != null ? savedBoard.getMember().getName() : "알 수 없음", // 작성자 이름
+                savedBoard.getCategory() != null ? savedBoard.getCategory().name() : "알 수 없음", // BoardCategory를 String으로 변환
+                savedBoard.getCreatedDate().toString() // 게시글 작성 일자
+        );
 
-//    // 카테고리 별(게시판 별) 게시글 조회
-//    @GetMapping("/category/{category}")
-//    public ResponseEntity<List<Board>> getBoardsByCategory(@PathVariable String category) {
-//        log.info("카테고리 '{}' 게시글 조회 요청을 받았습니다.", category);
-//
-//        List<Board> boards = boardService.findBoardsByCategory(category);
-//
-//        if (boards.isEmpty()) {
-//            log.warn("카테고리 '{}'의 게시글이 없습니다.", category);
-//            return ResponseEntity.noContent().build();
-//        }
-//
-//        log.info("카테고리 '{}'의 게시글 {}개가 성공적으로 조회되었습니다.", category, boards.size());
-//        return ResponseEntity.ok(boards);
-//    }
+        log.info("게시글 ID {}가 성공적으로 조회되었습니다.", savedBoard.getId());
+        return ResponseEntity.ok(boardDetailResponse);
+    }
 
 
     // 카테고리(게시판) 별 게시글 조회
@@ -106,7 +100,8 @@ public class BoardApiController {
 
     // 로그인한 회원의 게시글 -> '내가 쓴 글' 조회
     @GetMapping("/myBoards")
-    public ResponseEntity<List<Board>> getMyBoards(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+    public ResponseEntity<List<BoardSummaryResponse>> getMyBoards(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+
         // Authorization header에서 로그인 회원 이메일 추출
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
         log.info("사용자 이메일 '{}'으로 게시글 조회 요청을 받았습니다.", email);
@@ -119,7 +114,16 @@ public class BoardApiController {
         }
 
         log.info("사용자 '{}'의 게시글 {}개가 성공적으로 조회되었습니다.", email, boards.size());
-        return ResponseEntity.ok(boards);
+
+        // Board 엔티티를 BoardSummaryResponse DTO로 변환
+        List<BoardSummaryResponse> boardSummaryResponses = boards.stream()
+                .map(board -> new BoardSummaryResponse(
+                        board.getId(),
+                        board.getTitle(),
+                        board.getContent() != null ? board.getContent() : ""))  // 내용은 요약 혹은 일부만
+                .toList();
+
+        return ResponseEntity.ok(boardSummaryResponses);
     }
 
     // 게시글 삭제
@@ -142,20 +146,30 @@ public class BoardApiController {
 
     // 게시글 수정
     @PutMapping("/{id}")
-    public ResponseEntity<Board> updateBoard(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @PathVariable Long id, @RequestBody UpdateBoardRequest request) {
+    public ResponseEntity<BoardDetailResponse> updateBoard(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @PathVariable Long id, @RequestBody UpdateBoardRequest request) {
         // Authorization header에서 로그인 회원 이메일 추출
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
         log.info("게시글 수정 요청을 받았습니다. 게시글 ID: {}, 현재 로그인 사용자 이메일: {}", id, email);
 
         Board updatedBoard = boardService.update(email, id, request);  // 예외가 발생하면 BoardException 처리
 
+        // Board 엔티티를 BoardDetailResponse DTO로 변환
+        BoardDetailResponse boardDetailResponse = new BoardDetailResponse(
+                updatedBoard.getId(),
+                updatedBoard.getTitle(),
+                updatedBoard.getContent(),
+                updatedBoard.getMember() != null ? updatedBoard.getMember().getName() : "알 수 없음", // 작성자 이름
+                updatedBoard.getCategory() != null ? updatedBoard.getCategory().name() : "알 수 없음", // BoardCategory를 String으로 변환
+                updatedBoard.getCreatedDate().toString() // 게시글 작성 일자
+        );
+
         log.info("게시글 ID {}가 성공적으로 수정되었습니다.", id);
-        return ResponseEntity.ok(updatedBoard);
+        return ResponseEntity.ok(boardDetailResponse);
     }
 
     // 제목에 포함된 키워드로 게시글 검색
     @GetMapping("/search")
-    public ResponseEntity<List<Board>> searchBoards(@RequestParam SearchBoardRequest request) {
+    public ResponseEntity<List<BoardSummaryResponse>> searchBoards(@RequestParam SearchBoardRequest request) {
         log.info("게시글 제목 키워드 '{}'로 검색 요청을 받았습니다.", request.getKeyword());
         List<Board> boards = boardService.searchBoards(request.getCategory(), request.getKeyword());
 
@@ -164,7 +178,15 @@ public class BoardApiController {
             return ResponseEntity.noContent().build();
         }
 
+        // Board 엔티티를 BoardSummaryResponse DTO로 변환
+        List<BoardSummaryResponse> boardSummaryResponses = boards.stream()
+                .map(board -> new BoardSummaryResponse(
+                        board.getId(),
+                        board.getTitle(),
+                        board.getContent() != null ? board.getContent() : ""))  // 내용은 요약 혹은 일부만
+                .toList();
+
         log.info("키워드 '{}'로 검색한 게시글 {}개가 성공적으로 조회되었습니다.", request.getKeyword(), boards.size());
-        return ResponseEntity.ok(boards);
+        return ResponseEntity.ok(boardSummaryResponses);
     }
 }
