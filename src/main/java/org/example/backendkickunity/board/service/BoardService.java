@@ -51,7 +51,7 @@ public class BoardService {
         return boardRepository.findAll();
     }
 
-    // 특정 카테고리 게시글 조회
+    // 게시판 카테고리에 맞는 게시글 리스트를 조회 (제목과 내용만 필요)
     public List<Board> findBoardsByCategory(String category) {
         if ("ALL".equalsIgnoreCase(category)) {
             return findAllBoards(); // "ALL"일 경우 모든 게시글을 조회
@@ -63,6 +63,13 @@ public class BoardService {
             throw new BoardException(BoardExceptionType.INVALID_CATEGORY); // 잘못된 카테고리 값에 대한 처리
         }
     }
+
+    // 특정 게시글 조회
+    public Board findBoardById(Long id) {
+        // 게시글 ID로 상세 정보 조회
+        return boardRepository.findById(id).orElse(null);  // 게시글이 존재하지 않으면 null 반환
+    }
+
 
     // 로그인한 회원 '내가 쓴 글' 조회
     public List<Board> findBoardsByLoginEmail(String email) {
