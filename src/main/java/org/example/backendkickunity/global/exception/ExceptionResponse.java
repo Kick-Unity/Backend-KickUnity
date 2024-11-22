@@ -1,14 +1,14 @@
 package org.example.backendkickunity.global.exception;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 @Getter
-@NoArgsConstructor  // 기본 생성자 생성
-@AllArgsConstructor  // 모든 필드를 위한 생성자 생성
+@NoArgsConstructor
+@AllArgsConstructor
 public class ExceptionResponse {
     private String message;  // 예외 메시지
     private String errorCode;  // 예외 코드

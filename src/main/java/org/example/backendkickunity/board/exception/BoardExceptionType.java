@@ -13,9 +13,9 @@ public enum BoardExceptionType implements BaseExceptionType {
     BOARD_UNAUTHORIZED_DELETE(HttpStatus.FORBIDDEN, "BOARD_003", "게시글 삭제 권한이 없습니다."), // 삭제 권한이 없을 때는 403
     INVALID_CATEGORY(HttpStatus.BAD_REQUEST, "BOARD_004", "게시판 정보가 유효하지 않습니다."); // 잘못된 카테고리 값은 400
 
-    private HttpStatus httpStatus;
-    private String errorCode;
-    private String errorMessage;
+    private final  HttpStatus httpStatus;
+    private final String errorCode;
+    private final String errorMessage;
 
     BoardExceptionType(HttpStatus httpStatus, String errorCode, String errorMessage) {
         this.httpStatus = httpStatus;
@@ -27,12 +27,10 @@ public enum BoardExceptionType implements BaseExceptionType {
     public HttpStatus getHttpStatus() {
         return this.httpStatus;
     }
-
     @Override
     public String getErrorCode() {
         return this.errorCode;
     }
-
     @Override
     public String getErrorMessage() {
         return this.errorMessage;

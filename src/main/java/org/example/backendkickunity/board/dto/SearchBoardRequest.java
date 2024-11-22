@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 public class SearchBoardRequest {
-
     private String category;
     private String keyword;
 }

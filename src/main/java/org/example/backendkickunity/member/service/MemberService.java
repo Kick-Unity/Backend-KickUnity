@@ -189,12 +189,4 @@ public class MemberService {
         }
     }
 
-    public Member findByMemberEmail(String email) {
-        Member member = memberRepository.findByEmail(email);
-        if (member == null) {
-            throw new MemberException(MemberExceptionType.MEMBER_NOT_EXIST);
-        }
-
-        return member;
-    }
 }

@@ -12,5 +12,5 @@ public class BoardDetailResponse {
     private String content;   // 게시글 내용
     private String authorName; // 작성자 이름
     private String category;   // 게시판 카테고리
-    private String createdAt;  // 게시글 작성 일자
+    private String createdDate;  // 게시글 작성 일자 + 시간
 }

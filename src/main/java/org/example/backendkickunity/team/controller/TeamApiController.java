@@ -2,8 +2,10 @@ package org.example.backendkickunity.team.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.backendkickunity.auth.AuthService;
+import org.example.backendkickunity.team.domain.Team;
 import org.example.backendkickunity.team.dto.AddTeamMemberRequest;
 import org.example.backendkickunity.team.dto.AddTeamRequest;
+import org.example.backendkickunity.team.dto.TeamResponse;
 import org.example.backendkickunity.team.dto.UpdateTeamRequest;
 import org.example.backendkickunity.team.service.TeamService;
 import org.springframework.http.HttpHeaders;
@@ -24,7 +26,7 @@ public class TeamApiController {
         this.authService = authService;
     }
 
-    // 팀 생성
+    // 팀 생성 - PM 테스트 완료
     @PostMapping("/create")
     public ResponseEntity<Long> createTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody AddTeamRequest request) {
 
@@ -32,23 +34,20 @@ public class TeamApiController {
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
 
         // 팀 생성
-        Long teamId = teamService.createTeam(email, request.getTeamName(), request.getTeamCategory(),
-                request.getTeamRegion(), request.getTeamAge(),
-                request.getTeamSize());
+        Long teamId = teamService.createTeam(email, request);
 
         log.info("팀 생성 완료. 팀 이름: {}", request.getTeamName());
         return ResponseEntity.status(HttpStatus.CREATED).body(teamId);
     }
 
-    // 팀 정보 수정
+    // 팀 정보 수정 - PM 테스트 완료
     @PutMapping("/{teamId}")
     public ResponseEntity<String> updateTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @PathVariable Long teamId, @RequestBody UpdateTeamRequest request) {
         // Authorization header 에서 로그인 회원 이메일 추출
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
 
         // 팀 정보 수정
-        teamService.updateTeam(email, teamId, request.getTeamCategory(), request.getTeamRegion(),
-                request.getTeamAge(), request.getTeamSize());
+        teamService.updateTeam(email, teamId, request);
 
         log.info("팀 정보 수정 완료. 팀 ID: {}", teamId);
         return ResponseEntity.ok("팀 정보가 성공적으로 수정되었습니다.");
@@ -94,5 +93,29 @@ public class TeamApiController {
         return ResponseEntity.status(HttpStatus.OK).body("팀 삭제가 완료되었습니다.");
     }
 
+    // 팀 정보 확인 - PM 테스트 확인
+    @GetMapping("/{teamId}")
+    public ResponseEntity<TeamResponse> getTeam(@PathVariable Long teamId) {
+        log.info("게시글 상세 조회 요청을 받았습니다. 게시글 ID: {}", teamId);
+
+        Team team = teamService.findTeamById(teamId);
+
+        if (team == null) {
+            log.warn("팀 ID {}를 찾을 수 없습니다.", teamId);
+            return ResponseEntity.notFound().build();
+        }
+
+        // Team 엔티티를 TeamResponse DTO로 변환
+        TeamResponse teamResponse = new TeamResponse(
+                team.getTeamName(),
+                team.getTeamCategory(),
+                team.getTeamStartDate(),
+                team.getTeamRegion(),
+                team.getTeamAge(),
+                team.getTeamSize(),
+                team.getTeamDescription());
+
+        return ResponseEntity.ok(teamResponse);
+    }
 
 }

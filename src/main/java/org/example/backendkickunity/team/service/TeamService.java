@@ -7,12 +7,13 @@ import org.example.backendkickunity.member.exception.MemberException;
 import org.example.backendkickunity.member.exception.MemberExceptionType;
 import org.example.backendkickunity.member.repository.MemberRepository;
 import org.example.backendkickunity.team.domain.Team;
+import org.example.backendkickunity.team.dto.AddTeamRequest;
+import org.example.backendkickunity.team.dto.UpdateTeamRequest;
 import org.example.backendkickunity.team.exception.TeamException;
 import org.example.backendkickunity.team.exception.TeamExceptionType;
 import org.example.backendkickunity.team.repository.TeamRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 @Slf4j
 @Service
@@ -24,7 +25,7 @@ public class TeamService {
 
     // 팀 생성
     @Transactional
-    public Long createTeam(String leaderEmail, String teamName, String teamCategory, String teamRegion, String teamAge, int teamSize) {
+    public Long createTeam(String leaderEmail, AddTeamRequest request) {
 
         // 팀장 조회
         Member leader = memberRepository.findByEmail(leaderEmail);
@@ -35,16 +36,18 @@ public class TeamService {
         }
 
         // 팀 이름 중복 검사
-        if (teamRepository.existsByTeamName(teamName)) {
+        if (teamRepository.existsByTeamName(request.getTeamName())) {
             throw new TeamException(TeamExceptionType.ALREADY_EXIST_NAME);
         }
 
         Team team = new Team();
-        team.setTeamName(teamName);
-        team.setTeamCategory(teamCategory);
-        team.setTeamRegion(teamRegion);
-        team.setTeamAge(teamAge);
-        team.setTeamSize(teamSize);
+        team.setTeamName(request.getTeamName());
+        team.setTeamCategory(request.getTeamCategory());
+        team.setTeamStartDate(request.getTeamStartDate());
+        team.setTeamRegion(request.getTeamRegion());
+        team.setTeamAge(request.getTeamAge());
+        team.setTeamSize(request.getTeamSize());
+        team.setTeamDescription(request.getTeamDescription());
 
         // 팀장을 팀에 추가
         team.setTeamLeader(leader);
@@ -56,13 +59,13 @@ public class TeamService {
         memberRepository.save(leader); // 팀장 정보 업데이트
         teamRepository.save(team); // 팀 정보 저장
 
-        log.info("새로운 팀이 생성되었습니다. 팀 이름: {}, 팀장: {}", teamName, leader.getName());
+        log.info("새로운 팀이 생성되었습니다. 팀 이름: {}, 팀장: {}", request.getTeamName(), leader.getName());
         return team.getId();
     }
 
     // 팀 정보 수정
     @Transactional
-    public void updateTeam(String leaderEmail, Long teamId, String teamCategory, String teamRegion, String teamAge, int teamSize) {
+    public void updateTeam(String leaderEmail, Long teamId, UpdateTeamRequest request) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new TeamException(TeamExceptionType.TEAM_NOT_EXIST));
 
@@ -74,10 +77,11 @@ public class TeamService {
             throw new TeamException(TeamExceptionType.UNAUTHORIZED_TEAM_LEADER);
         }
 
-        team.setTeamCategory(teamCategory);
-        team.setTeamRegion(teamRegion);
-        team.setTeamAge(teamAge);
-        team.setTeamSize(teamSize);
+        team.setTeamCategory(request.getTeamCategory());
+        team.setTeamRegion(request.getTeamRegion());
+        team.setTeamAge(request.getTeamAge());
+        team.setTeamSize(request.getTeamSize());
+        team.setTeamDescription(request.getTeamDescription());
 
         teamRepository.save(team); // 수정된 팀 정보 저장
         log.info("팀 정보가 수정되었습니다. 팀 ID: {}", teamId);
@@ -187,5 +191,12 @@ public class TeamService {
         // 팀 삭제 완료 로그
         log.info("팀 삭제 완료. 팀 이름: {}, 팀장: {}", team.getTeamName(), leader.getName());
     }
+
+    // 특정 팀 조회
+    public Team findTeamById(Long id) {
+        // 게시글 ID로 상세 정보 조회
+        return teamRepository.findById(id).orElse(null);  // 팀이 존재하지 않으면 null 반환
+    }
+
 
 }

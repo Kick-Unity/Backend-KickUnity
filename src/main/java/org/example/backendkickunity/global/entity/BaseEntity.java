@@ -21,7 +21,7 @@ public abstract class BaseEntity {
 
     @CreatedDate
     @Column(updatable = false)
-    private LocalDateTime createdDate;
+    private LocalDateTime createdDate; // yyyy-MM-dd HH:mm:ss로 저장
 
     @LastModifiedDate
     @Column(updatable = true)

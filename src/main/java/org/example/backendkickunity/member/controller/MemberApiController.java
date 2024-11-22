@@ -23,8 +23,6 @@ public class MemberApiController {
     private final EmailAuthService emailAuthService;
     private final AuthService authService;
 
-
-
     public MemberApiController(MemberService memberService, EmailAuthService emailAuthService,  AuthService authService) {
         this.memberService = memberService;
         this.emailAuthService = emailAuthService;
@@ -145,6 +143,4 @@ public class MemberApiController {
             return new ResponseEntity<>(new CheckResponse(false, e.getMessage()), e.getExceptionType().getHttpStatus());
         }
     }
-
-
 }

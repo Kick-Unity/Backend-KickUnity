@@ -5,6 +5,7 @@ import lombok.*;
 import org.example.backendkickunity.global.entity.BaseEntity;
 import org.example.backendkickunity.member.domain.Member;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -33,12 +34,14 @@ public class Team extends BaseEntity {
     @Column(name = "team_size", nullable = false)
     private int teamSize;
 
+    @Column(name = "team_description")
+    private String teamDescription;
+
     @ManyToOne
     @JoinColumn(name = "team_leader_id") // teamLeader_id 외래키 컬럼 설정
     private Member teamLeader; // 팀장
 
     @OneToMany(mappedBy = "team") // Member 엔터티의 team 필드와 매핑
-    private List<Member> members;
-
+    @Builder.Default // @Builder가 List의 기본값을 적용하도록 함
+    private List<Member> members = new ArrayList<>(); // List 초기화
 }
-

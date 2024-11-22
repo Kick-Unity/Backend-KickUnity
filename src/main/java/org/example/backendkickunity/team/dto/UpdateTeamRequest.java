@@ -14,4 +14,5 @@ public class UpdateTeamRequest {
     private String teamRegion;
     private String teamAge;
     private int teamSize;
+    private String teamDescription;
 }
