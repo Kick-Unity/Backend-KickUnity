@@ -36,15 +36,16 @@ public class BoardService {
         }
 
         // Board 객체 생성
-        Board board = Board.builder()
+        Board board = Board.builder()  // Builder 패턴 사용
                 .title(request.getTitle())
                 .content(request.getContent())
-                .member(member)  // 작성자 정보 추가
+                .member(member)
                 .category(request.getCategory())
                 .build();
 
         return boardRepository.save(board);  // 게시글 저장
     }
+
 
     // 모든 게시글 조회
     public List<Board> findAllBoards() {

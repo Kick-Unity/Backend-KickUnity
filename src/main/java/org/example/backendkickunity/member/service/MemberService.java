@@ -76,10 +76,7 @@ public class MemberService {
             teamName = member.getTeam().getTeamName();
         }
 
-        MypageResponse mypageResponse = new MypageResponse(teamName, member.getEmail(), member.getName(), member.getBirth());
-
-        return mypageResponse;
-
+        return  new MypageResponse(teamName, member.getEmail(), member.getName(), member.getBirth());
     }
 
     //이름 변경
