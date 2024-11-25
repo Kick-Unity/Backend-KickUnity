@@ -1,7 +1,7 @@
 package org.example.backendkickunity.board.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.backendkickunity.auth.AuthService;
+import org.example.backendkickunity.auth.service.AuthService;
 import org.example.backendkickunity.board.domain.Board;
 import org.example.backendkickunity.board.dto.*;
 import org.example.backendkickunity.board.service.BoardService;
@@ -148,7 +148,6 @@ public class BoardApiController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBoard(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                             @PathVariable Long id) {
-
         // Authorization header에서 로그인 회원 이메일 추출
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
         log.info("게시글 삭제 요청을 받았습니다. 게시글 ID: {}, 현재 로그인 사용자 이메일: {}", id, email);

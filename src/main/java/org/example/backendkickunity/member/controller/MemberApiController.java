@@ -2,7 +2,7 @@ package org.example.backendkickunity.member.controller;
 
 import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
-import org.example.backendkickunity.auth.AuthService;
+import org.example.backendkickunity.auth.service.AuthService;
 import org.example.backendkickunity.member.dto.*;
 import org.example.backendkickunity.member.exception.MemberException;
 import org.example.backendkickunity.member.service.EmailAuthService;
@@ -130,7 +130,7 @@ public class MemberApiController {
     }
 
     // 회원 삭제 API
-    @DeleteMapping("/deleteMember")
+    @PutMapping("/deleteMember")
     public ResponseEntity<CheckResponse> deleteMember(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                       @RequestBody DeleteMemberRequest request) {
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);

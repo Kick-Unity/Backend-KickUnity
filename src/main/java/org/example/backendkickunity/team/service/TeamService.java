@@ -15,6 +15,8 @@ import org.example.backendkickunity.team.repository.TeamRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -197,6 +199,13 @@ public class TeamService {
         // 게시글 ID로 상세 정보 조회
         return teamRepository.findById(id).orElse(null);  // 팀이 존재하지 않으면 null 반환
     }
+
+    // 팀 이름으로 팀을 검색하는 메서드
+    public List<Team> findTeamsByName(String teamName) {
+        // 팀 이름을 포함한 팀을 검색 (부분 일치)
+        return teamRepository.findByTeamNameContainingIgnoreCase(teamName);  // 대소문자 구분 없이 검색
+    }
+
 
 
 }

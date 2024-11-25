@@ -46,20 +46,19 @@ public class BoardService {
         return boardRepository.save(board);  // 게시글 저장
     }
 
-
-    // 모든 게시글 조회
+    // 모든 게시글 조회 (최신순으로 정렬)
     public List<Board> findAllBoards() {
-        return boardRepository.findAll();
+        return boardRepository.findAllByOrderByCreatedDateDesc();
     }
 
-    // 게시판 카테고리에 맞는 게시글 리스트를 조회 (제목과 내용만 필요)
+    // 게시판 카테고리에 맞는 게시글 리스트를 조회 (제목과 내용만 필요, 최신순 정렬)
     public List<Board> findBoardsByCategory(String category) {
         if ("ALL".equalsIgnoreCase(category)) {
-            return findAllBoards(); // "ALL"일 경우 모든 게시글을 조회
+            return findAllBoards(); // "ALL"일 경우 모든 게시글을 최신순으로 조회
         }
         try {
             BoardCategory boardCategory = BoardCategory.valueOf(category.toUpperCase());
-            return boardRepository.findAllByCategory(boardCategory); // 특정 카테고리 조회
+            return boardRepository.findAllByCategoryOrderByCreatedDateDesc(boardCategory); // 특정 카테고리 내에서 최신순으로 조회
         } catch (IllegalArgumentException e) {
             throw new BoardException(BoardExceptionType.INVALID_CATEGORY); // 잘못된 카테고리 값에 대한 처리
         }
@@ -71,10 +70,9 @@ public class BoardService {
         return boardRepository.findById(id).orElse(null);  // 게시글이 존재하지 않으면 null 반환
     }
 
-
-    // 로그인한 회원 '내가 쓴 글' 조회
+    // 로그인한 회원 '내가 쓴 글' 조회 (최신순으로 정렬)
     public List<Board> findBoardsByLoginEmail(String email) {
-        return boardRepository.findAllByMemberEmail(email);
+        return boardRepository.findAllByMemberEmailOrderByCreatedDateDesc(email);
     }
 
     // 게시글 수정
@@ -110,7 +108,7 @@ public class BoardService {
         return true;  // 삭제 성공
     }
 
-    // 제목에 키워드가 포함된 게시글 검색
+    // 제목에 키워드가 포함된 게시글 검색 (최신순 정렬)
     public List<Board> searchBoards(String boardCategory, String keyword) {
         BoardCategory category = null;
 
@@ -124,10 +122,10 @@ public class BoardService {
         }
 
         if (category != null) {
-            // 카테고리가 지정되면 해당 카테고리 내에서 키워드 검색
+            // 카테고리가 지정되면 해당 카테고리 내에서 키워드 검색 (최신순 정렬)
             return boardRepository.findAllByCategoryAndTitleContainingOrCategoryAndContentContaining(category, keyword);
         } else {
-            // 카테고리가 지정되지 않으면 모든 게시글에서 키워드 검색
+            // 카테고리가 지정되지 않으면 모든 게시글에서 키워드 검색 (최신순 정렬)
             return boardRepository.findAllByTitleContainingOrContentContaining(keyword);
         }
     }

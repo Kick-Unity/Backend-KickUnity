@@ -1,4 +1,4 @@
-package org.example.backendkickunity.auth;
+package org.example.backendkickunity.auth.service;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;

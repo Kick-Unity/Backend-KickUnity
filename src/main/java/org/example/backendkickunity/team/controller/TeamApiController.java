@@ -1,17 +1,17 @@
 package org.example.backendkickunity.team.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.backendkickunity.auth.AuthService;
+import org.example.backendkickunity.auth.service.AuthService;
 import org.example.backendkickunity.team.domain.Team;
-import org.example.backendkickunity.team.dto.AddTeamMemberRequest;
-import org.example.backendkickunity.team.dto.AddTeamRequest;
-import org.example.backendkickunity.team.dto.TeamResponse;
-import org.example.backendkickunity.team.dto.UpdateTeamRequest;
+import org.example.backendkickunity.team.dto.*;
 import org.example.backendkickunity.team.service.TeamService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -93,9 +93,31 @@ public class TeamApiController {
         return ResponseEntity.status(HttpStatus.OK).body("팀 삭제가 완료되었습니다.");
     }
 
-    // 팀 정보 확인 - PM 테스트 확인
+    // 팀 이름으로 팀 검색
+    @GetMapping("/searchTeam")
+    public ResponseEntity<List<TeamSummaryResponse>> searchTeamByName(@RequestParam String teamName) {
+        // 팀 이름으로 팀 검색
+        List<Team> teams = teamService.findTeamsByName(teamName);
+
+        if (teams.isEmpty()) {
+            log.warn("해당 이름을 가진 팀이 존재하지 않습니다.");
+            return ResponseEntity.notFound().build();        }
+
+        // 팀 리스트를 TeamResponse DTO로 변환하여 반환
+        List<TeamSummaryResponse> teamSummaryResponse = teams.stream()
+                .map(team -> new TeamSummaryResponse(
+                        team.getId(),
+                        team.getTeamName(),
+                        team.getTeamCategory(),
+                        team.getTeamRegion()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(teamSummaryResponse);
+    }
+
+    // 팀 상세 정보 확인 - PM 테스트 확인
     @GetMapping("/{teamId}")
-    public ResponseEntity<TeamResponse> getTeam(@PathVariable Long teamId) {
+    public ResponseEntity<TeamDetailResponse> getTeam(@PathVariable Long teamId) {
         log.info("게시글 상세 조회 요청을 받았습니다. 게시글 ID: {}", teamId);
 
         Team team = teamService.findTeamById(teamId);
@@ -106,7 +128,8 @@ public class TeamApiController {
         }
 
         // Team 엔티티를 TeamResponse DTO로 변환
-        TeamResponse teamResponse = new TeamResponse(
+        TeamDetailResponse teamDetailResponse = new TeamDetailResponse(
+                team.getId(),
                 team.getTeamName(),
                 team.getTeamCategory(),
                 team.getTeamStartDate(),
@@ -115,7 +138,6 @@ public class TeamApiController {
                 team.getTeamSize(),
                 team.getTeamDescription());
 
-        return ResponseEntity.ok(teamResponse);
+        return ResponseEntity.ok(teamDetailResponse);
     }
-
 }

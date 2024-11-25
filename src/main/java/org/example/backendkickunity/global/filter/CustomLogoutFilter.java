@@ -1,6 +1,5 @@
 package org.example.backendkickunity.global.filter;
 
-
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -35,7 +34,8 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
         //path and method verify
         String requestUri = request.getRequestURI();
-        if (!requestUri.matches("^\\/logout$")) {
+        //if (!requestUri.matches("^\\/logout$")) {
+        if (!requestUri.matches("^\\/api\\/logout$")) {  // 변경된 경로 확인
 
             filterChain.doFilter(request, response);
             return;
