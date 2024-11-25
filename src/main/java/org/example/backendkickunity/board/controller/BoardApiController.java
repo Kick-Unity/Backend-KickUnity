@@ -148,7 +148,6 @@ public class BoardApiController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBoard(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                             @PathVariable Long id) {
-
         // Authorization header에서 로그인 회원 이메일 추출
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
         log.info("게시글 삭제 요청을 받았습니다. 게시글 ID: {}, 현재 로그인 사용자 이메일: {}", id, email);

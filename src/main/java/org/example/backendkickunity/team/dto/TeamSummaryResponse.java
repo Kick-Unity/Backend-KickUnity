@@ -9,12 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TeamResponse {
+public class TeamSummaryResponse {
+    private Long id;
     private String teamName;
     private String teamCategory;
-    private String teamStartDate;
     private String teamRegion;
-    private String teamAge;
-    private int teamSize;
-    private String teamDescription;
 }

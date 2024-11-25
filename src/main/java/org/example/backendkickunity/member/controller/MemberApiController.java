@@ -130,7 +130,7 @@ public class MemberApiController {
     }
 
     // 회원 삭제 API
-    @DeleteMapping("/deleteMember")
+    @PutMapping("/deleteMember")
     public ResponseEntity<CheckResponse> deleteMember(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                       @RequestBody DeleteMemberRequest request) {
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
