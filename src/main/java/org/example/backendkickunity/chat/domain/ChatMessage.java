@@ -3,6 +3,7 @@ package org.example.backendkickunity.chat.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.backendkickunity.global.entity.BaseEntity;
+import org.example.backendkickunity.member.domain.Member;
 
 @Entity
 @Getter
@@ -21,9 +22,7 @@ public class ChatMessage extends BaseEntity {
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
 
-    private String sender;
-
-    public enum MessageType {
-        JOIN, TALK, LEAVE
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_id")
+    private Member sender;  // 메시지 발신자
 }

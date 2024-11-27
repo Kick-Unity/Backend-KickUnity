@@ -5,19 +5,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.backendkickunity.chat.domain.ChatMessage;
 import org.example.backendkickunity.chat.domain.ChatRoom;
+import org.example.backendkickunity.chat.dto.ChatRoomDTO;
 import org.example.backendkickunity.chat.service.ChatService;
 import org.example.backendkickunity.chat.repository.ChatRoomRepository;
-import org.example.backendkickunity.member.repository.MemberRepository;
+import org.example.backendkickunity.member.domain.Member;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -38,10 +36,26 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         String path = session.getUri().getPath();
         Long chatRoomId = extractChatRoomId(path);
 
+        // 채팅방 ID가 없으면 새 채팅방 생성
         if (chatRoomId == null) {
-            session.sendMessage(new TextMessage("채팅방 ID가 유효하지 않습니다."));
-            session.close();
-            return;
+            // 채팅방이 없으면 URL 경로에서 사용자 ID 추출
+            String[] segments = path.split("/");
+            Long user1Id = Long.valueOf(segments[segments.length - 2]);
+            Long user2Id = Long.valueOf(segments[segments.length - 1]);
+
+            Member user1 = chatService.getMemberById(user1Id);
+            Member user2 = chatService.getMemberById(user2Id);
+
+            // 채팅방 생성 (List<Member> 사용)
+            List<Member> members = new ArrayList<>();
+            members.add(user1);
+            members.add(user2);
+
+            // 채팅방 생성 및 저장
+            ChatRoom chatRoom = chatService.createChatRoom(members);  // 수정된 부분
+
+            // 새로운 채팅방 ID로 채팅방 정보 저장
+            chatRoomId = chatRoom.getId();
         }
 
         // 채팅방에 사용자 추가

@@ -8,6 +8,7 @@ public class BoardException extends BaseException {
     private final BaseExceptionType exceptionType;
 
     public BoardException(BaseExceptionType exceptionType) {
+        super(exceptionType.getErrorMessage());  // 예외 메시지를 부모 클래스에 전달
         this.exceptionType = exceptionType;
     }
 

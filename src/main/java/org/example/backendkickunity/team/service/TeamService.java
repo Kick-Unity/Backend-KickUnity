@@ -79,7 +79,14 @@ public class TeamService {
             throw new TeamException(TeamExceptionType.UNAUTHORIZED_TEAM_LEADER);
         }
 
+        // 팀 이름 중복 검사
+        if (teamRepository.existsByTeamName(request.getTeamName())) {
+            throw new TeamException(TeamExceptionType.ALREADY_EXIST_NAME);
+        }
+
+        team.setTeamName(request.getTeamName());
         team.setTeamCategory(request.getTeamCategory());
+        team.setTeamStartDate(request.getTeamStartDate());
         team.setTeamRegion(request.getTeamRegion());
         team.setTeamAge(request.getTeamAge());
         team.setTeamSize(request.getTeamSize());
@@ -206,6 +213,17 @@ public class TeamService {
         return teamRepository.findByTeamNameContainingIgnoreCase(teamName);  // 대소문자 구분 없이 검색
     }
 
+    // 사용자가 속한 팀 조회
+    public Team findTeamByMemberEmail(String email) {
+        // 이메일을 가진 사용자가 속한 팀을 찾음
+        Member member = memberRepository.findByEmail(email);
 
+        if (member == null) {
+            return null;  // 해당 이메일을 가진 사용자가 없다면 null 반환
+        }
+
+        // 사용자가 속한 팀을 반환
+        return member.getTeam();  // Member 객체에 팀 정보가 포함되어 있다고 가정
+    }
 
 }

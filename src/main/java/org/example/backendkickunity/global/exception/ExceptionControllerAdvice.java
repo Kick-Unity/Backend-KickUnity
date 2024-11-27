@@ -5,6 +5,7 @@ import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.example.backendkickunity.auth.exception.AuthException;
 import org.example.backendkickunity.board.exception.BoardException;
+import org.example.backendkickunity.chat.exception.ChatException;
 import org.example.backendkickunity.member.exception.MemberException;
 import org.example.backendkickunity.team.exception.TeamException;
 import org.springframework.http.HttpStatus;
@@ -72,6 +73,14 @@ public class ExceptionControllerAdvice {
     public ResponseEntity<ExceptionResponse> handleTeamException(TeamException ex) {
         log.error("TeamException 발생: {}", ex.getMessage(), ex);
         ExceptionResponse response = ExceptionResponse.from(ex.getExceptionType());  // TeamException의 메시지 처리
+        return new ResponseEntity<>(response, ex.getExceptionType().getHttpStatus());
+    }
+
+    // 채팅 관련 예외 처리
+    @ExceptionHandler(ChatException.class)
+    public ResponseEntity<ExceptionResponse> handleChatException(ChatException ex) {
+        log.error("ChatException 발생: {}", ex.getMessage(), ex);
+        ExceptionResponse response = ExceptionResponse.from(ex.getExceptionType());  // ChatException의 메시지 처리
         return new ResponseEntity<>(response, ex.getExceptionType().getHttpStatus());
     }
 
