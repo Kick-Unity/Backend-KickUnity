@@ -94,10 +94,10 @@ public class BoardApiController {
             return ResponseEntity.notFound().build();
         }
 
-        // DateTimeFormatter를 사용하여 LocalDateTime을 String으로 변환
+        // DateTimeFormatter 를 사용하여 LocalDateTime 을 String 으로 변환
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-        // Board 엔티티를 BoardDetailResponse DTO로 변환
+        // Board 엔티티를 BoardDetailResponse DTO 로 변환
         BoardDetailResponse boardDetailResponse = new BoardDetailResponse(
                 board.getId(),
                 board.getTitle(),

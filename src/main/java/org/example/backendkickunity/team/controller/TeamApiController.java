@@ -26,10 +26,28 @@ public class TeamApiController {
         this.authService = authService;
     }
 
+    @GetMapping("/myTeam")
+    public ResponseEntity<String> getMyTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        // Authorization header 에서 로그인 회원 이메일 추출
+        String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
+
+        // 사용자가 속한 팀 정보 조회
+        Team team = teamService.findTeamByMemberEmail(email);
+
+        if (team == null) {
+            log.warn("소속팀이 없습니다. 이메일: {}", email);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("팀이 없습니다."); // 팀이 없는 경우 404 반환
+        }
+
+        // 팀이 있을 경우 200 OK 반환
+        return ResponseEntity.ok("소속팀이 있습니다.");
+    }
+
+
     // 팀 생성 - PM 테스트 완료
     @PostMapping("/create")
-    public ResponseEntity<Long> createTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @RequestBody AddTeamRequest request) {
-
+    public ResponseEntity<Long> createTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                           @RequestBody AddTeamRequest request) {
         // Authorization header 에서 로그인 회원 이메일 추출
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
 
@@ -42,7 +60,8 @@ public class TeamApiController {
 
     // 팀 정보 수정 - PM 테스트 완료
     @PutMapping("/{teamId}")
-    public ResponseEntity<String> updateTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @PathVariable Long teamId, @RequestBody UpdateTeamRequest request) {
+    public ResponseEntity<String> updateTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                             @PathVariable Long teamId, @RequestBody UpdateTeamRequest request) {
         // Authorization header 에서 로그인 회원 이메일 추출
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
 
@@ -55,7 +74,8 @@ public class TeamApiController {
 
     // 팀원 추가
     @PostMapping("/{teamId}/addMember")
-    public ResponseEntity<String> addMemberToTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @PathVariable Long teamId, @RequestBody AddTeamMemberRequest request) {
+    public ResponseEntity<String> addMemberToTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                  @PathVariable Long teamId, @RequestBody AddTeamMemberRequest request) {
 
         // Authorization header 에서 로그인 회원 이메일 추출
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
@@ -69,7 +89,8 @@ public class TeamApiController {
 
     // 팀원 삭제
     @DeleteMapping("/{teamId}/removeMember/{memberId}")
-    public ResponseEntity<String> removeMemberFromTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @PathVariable Long teamId, @PathVariable Long memberId) {
+    public ResponseEntity<String> removeMemberFromTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                       @PathVariable Long teamId, @PathVariable Long memberId) {
 
         // Authorization header 에서 로그인 회원 이메일 추출
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
@@ -83,7 +104,8 @@ public class TeamApiController {
 
     // 팀 삭제
     @DeleteMapping("/{teamId}")
-    public ResponseEntity<String> deleteTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader, @PathVariable Long teamId) {
+    public ResponseEntity<String> deleteTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                             @PathVariable Long teamId) {
         // Authorization header 에서 로그인 회원 이메일 추출
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
 

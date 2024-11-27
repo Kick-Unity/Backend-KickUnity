@@ -3,9 +3,9 @@ package org.example.backendkickunity.member.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.backendkickunity.board.domain.Board;
+import org.example.backendkickunity.chat.domain.ChatRoom;
 import org.example.backendkickunity.global.entity.BaseEntity;
 import org.example.backendkickunity.team.domain.Team;
-
 import java.util.List;
 
 @Entity
@@ -17,24 +17,27 @@ import java.util.List;
 public class Member extends BaseEntity {
 
     @Column(name = "email", nullable = false, unique = true)
-    private String email; //unique key
+    private String email;
 
-    @Column(name = "password", nullable = false) //변경 가능
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "name", nullable = false) //닉네임 변경 가능
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "birth", nullable = false)
     private String birth;
 
     @Column(name = "role")
-    private String role; //ADMIN(팀장), USER(일반사용자, 팀가입자)
+    private String role;
 
     @ManyToOne
     private Team team;
 
-    @OneToMany(mappedBy = "member") // Board 엔티티의 member 필드와 매핑
-    private List<Board> boards;
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Board> boards;  // 이 회원이 작성한 모든 게시물들
 
+    @ManyToMany(mappedBy = "members") // 이 회원이 참여한 모든 채팅방들
+    private List<ChatRoom> chatRooms;
 }
+
