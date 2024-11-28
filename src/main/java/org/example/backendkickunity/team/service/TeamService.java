@@ -65,9 +65,9 @@ public class TeamService {
         return team.getId();
     }
 
-    // 팀 정보 수정
+    // 팀 이름 수정
     @Transactional
-    public void updateTeam(String leaderEmail, Long teamId, UpdateTeamRequest request) {
+    public void updateTeamName(String leaderEmail, Long teamId, String newName) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new TeamException(TeamExceptionType.TEAM_NOT_EXIST));
 
@@ -80,21 +80,144 @@ public class TeamService {
         }
 
         // 팀 이름 중복 검사
-        if (teamRepository.existsByTeamName(request.getTeamName())) {
+        if (teamRepository.existsByTeamName(newName)) {
             throw new TeamException(TeamExceptionType.ALREADY_EXIST_NAME);
         }
 
-        team.setTeamName(request.getTeamName());
-        team.setTeamCategory(request.getTeamCategory());
-        team.setTeamStartDate(request.getTeamStartDate());
-        team.setTeamRegion(request.getTeamRegion());
-        team.setTeamAge(request.getTeamAge());
-        team.setTeamSize(request.getTeamSize());
-        team.setTeamDescription(request.getTeamDescription());
+        team.setTeamName(newName);
 
         teamRepository.save(team); // 수정된 팀 정보 저장
         log.info("팀 정보가 수정되었습니다. 팀 ID: {}", teamId);
     }
+
+    // 팀 카테고리 수정
+    @Transactional
+    public void updateTeamCategory(String leaderEmail, Long teamId, String newCategory) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new TeamException(TeamExceptionType.TEAM_NOT_EXIST));
+
+        // 팀장 조회
+        Member leader = memberRepository.findByEmail(leaderEmail);
+        if (leader == null) {
+            throw new MemberException(MemberExceptionType.MEMBER_NOT_EXIST);
+        } else if (!team.getTeamLeader().getId().equals(leader.getId())) {
+            throw new TeamException(TeamExceptionType.UNAUTHORIZED_TEAM_LEADER);
+        }
+
+
+        team.setTeamCategory(newCategory);
+
+        teamRepository.save(team); // 수정된 팀 정보 저장
+        log.info("팀 정보가 수정되었습니다. 팀 ID: {}", teamId);
+    }
+
+    // 팀 창단일 수정
+    @Transactional
+    public void updateTeamStartDate(String leaderEmail, Long teamId, String newDate) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new TeamException(TeamExceptionType.TEAM_NOT_EXIST));
+
+        // 팀장 조회
+        Member leader = memberRepository.findByEmail(leaderEmail);
+        if (leader == null) {
+            throw new MemberException(MemberExceptionType.MEMBER_NOT_EXIST);
+        } else if (!team.getTeamLeader().getId().equals(leader.getId())) {
+            throw new TeamException(TeamExceptionType.UNAUTHORIZED_TEAM_LEADER);
+        }
+
+
+        team.setTeamStartDate(newDate);
+
+        teamRepository.save(team); // 수정된 팀 정보 저장
+        log.info("팀 정보가 수정되었습니다. 팀 ID: {}", teamId);
+    }
+
+    // 팀 지역 수정
+    @Transactional
+    public void updateTeamRegion(String leaderEmail, Long teamId, String newRegion) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new TeamException(TeamExceptionType.TEAM_NOT_EXIST));
+
+        // 팀장 조회
+        Member leader = memberRepository.findByEmail(leaderEmail);
+        if (leader == null) {
+            throw new MemberException(MemberExceptionType.MEMBER_NOT_EXIST);
+        } else if (!team.getTeamLeader().getId().equals(leader.getId())) {
+            throw new TeamException(TeamExceptionType.UNAUTHORIZED_TEAM_LEADER);
+        }
+
+
+        team.setTeamRegion(newRegion);
+
+        teamRepository.save(team); // 수정된 팀 정보 저장
+        log.info("팀 정보가 수정되었습니다. 팀 ID: {}", teamId);
+    }
+
+    // 팀 연령대 수정
+    @Transactional
+    public void updateTeamAge(String leaderEmail, Long teamId, String newAge) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new TeamException(TeamExceptionType.TEAM_NOT_EXIST));
+
+        // 팀장 조회
+        Member leader = memberRepository.findByEmail(leaderEmail);
+        if (leader == null) {
+            throw new MemberException(MemberExceptionType.MEMBER_NOT_EXIST);
+        } else if (!team.getTeamLeader().getId().equals(leader.getId())) {
+            throw new TeamException(TeamExceptionType.UNAUTHORIZED_TEAM_LEADER);
+        }
+
+
+        team.setTeamAge(newAge);
+
+        teamRepository.save(team); // 수정된 팀 정보 저장
+        log.info("팀 정보가 수정되었습니다. 팀 ID: {}", teamId);
+    }
+
+    // 팀 소개 수정
+    @Transactional
+    public void updateTeamDescription(String leaderEmail, Long teamId, String newDescription) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new TeamException(TeamExceptionType.TEAM_NOT_EXIST));
+
+        // 팀장 조회
+        Member leader = memberRepository.findByEmail(leaderEmail);
+        if (leader == null) {
+            throw new MemberException(MemberExceptionType.MEMBER_NOT_EXIST);
+        } else if (!team.getTeamLeader().getId().equals(leader.getId())) {
+            throw new TeamException(TeamExceptionType.UNAUTHORIZED_TEAM_LEADER);
+        }
+
+
+        team.setTeamDescription(newDescription);
+
+        teamRepository.save(team); // 수정된 팀 정보 저장
+        log.info("팀 정보가 수정되었습니다. 팀 ID: {}", teamId);
+    }
+
+    // 팀 사이즈 수정
+    @Transactional
+    public void updateTeamSize(String leaderEmail, Long teamId, int newSize) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new TeamException(TeamExceptionType.TEAM_NOT_EXIST));
+
+        // 팀장 조회
+        Member leader = memberRepository.findByEmail(leaderEmail);
+        if (leader == null) {
+            throw new MemberException(MemberExceptionType.MEMBER_NOT_EXIST);
+        } else if (!team.getTeamLeader().getId().equals(leader.getId())) {
+            throw new TeamException(TeamExceptionType.UNAUTHORIZED_TEAM_LEADER);
+        }
+
+
+        team.setTeamSize(newSize);
+
+        teamRepository.save(team); // 수정된 팀 정보 저장
+        log.info("팀 정보가 수정되었습니다. 팀 ID: {}", teamId);
+    }
+
+
+
 
     // 팀원 추가
     @Transactional

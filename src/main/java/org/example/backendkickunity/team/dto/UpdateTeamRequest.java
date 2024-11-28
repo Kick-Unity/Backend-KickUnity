@@ -8,11 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 public class UpdateTeamRequest {
-    private String teamName;
-    private String teamCategory;
-    private String teamStartDate;
-    private String teamRegion;
-    private String teamAge;
-    private int teamSize;
-    private String teamDescription;
+    private String st;
+    private int number;
 }

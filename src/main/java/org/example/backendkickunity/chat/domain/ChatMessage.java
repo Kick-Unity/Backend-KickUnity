@@ -13,7 +13,7 @@ import org.example.backendkickunity.member.domain.Member;
 @Builder
 public class ChatMessage extends BaseEntity {
 
-    private String message;
+    private String message; // 메세지 내용
 
     @Enumerated(EnumType.STRING)
     private MessageType messageType;
