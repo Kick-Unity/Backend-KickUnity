@@ -103,11 +103,9 @@ public class TeamService {
         } else if (!team.getTeamLeader().getId().equals(leader.getId())) {
             throw new TeamException(TeamExceptionType.UNAUTHORIZED_TEAM_LEADER);
         }
-
-
         team.setTeamCategory(newCategory);
-
         teamRepository.save(team); // 수정된 팀 정보 저장
+
         log.info("팀 정보가 수정되었습니다. 팀 ID: {}", teamId);
     }
 
@@ -124,11 +122,9 @@ public class TeamService {
         } else if (!team.getTeamLeader().getId().equals(leader.getId())) {
             throw new TeamException(TeamExceptionType.UNAUTHORIZED_TEAM_LEADER);
         }
-
-
         team.setTeamStartDate(newDate);
-
         teamRepository.save(team); // 수정된 팀 정보 저장
+
         log.info("팀 정보가 수정되었습니다. 팀 ID: {}", teamId);
     }
 
@@ -145,11 +141,9 @@ public class TeamService {
         } else if (!team.getTeamLeader().getId().equals(leader.getId())) {
             throw new TeamException(TeamExceptionType.UNAUTHORIZED_TEAM_LEADER);
         }
-
-
         team.setTeamRegion(newRegion);
-
         teamRepository.save(team); // 수정된 팀 정보 저장
+
         log.info("팀 정보가 수정되었습니다. 팀 ID: {}", teamId);
     }
 
@@ -166,11 +160,9 @@ public class TeamService {
         } else if (!team.getTeamLeader().getId().equals(leader.getId())) {
             throw new TeamException(TeamExceptionType.UNAUTHORIZED_TEAM_LEADER);
         }
-
-
         team.setTeamAge(newAge);
-
         teamRepository.save(team); // 수정된 팀 정보 저장
+
         log.info("팀 정보가 수정되었습니다. 팀 ID: {}", teamId);
     }
 
@@ -190,8 +182,8 @@ public class TeamService {
 
 
         team.setTeamDescription(newDescription);
-
         teamRepository.save(team); // 수정된 팀 정보 저장
+
         log.info("팀 정보가 수정되었습니다. 팀 ID: {}", teamId);
     }
 
@@ -209,15 +201,11 @@ public class TeamService {
             throw new TeamException(TeamExceptionType.UNAUTHORIZED_TEAM_LEADER);
         }
 
-
         team.setTeamSize(newSize);
-
         teamRepository.save(team); // 수정된 팀 정보 저장
+
         log.info("팀 정보가 수정되었습니다. 팀 ID: {}", teamId);
     }
-
-
-
 
     // 팀원 추가
     @Transactional
@@ -257,7 +245,7 @@ public class TeamService {
 
     // 팀원 삭제
     @Transactional
-    public String removeMemberFromTeam(String leaderEmail, Long teamId, Long memberId) {
+    public String removeMemberFromTeam(String leaderEmail, Long teamId, String removeMemberEmail) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new TeamException(TeamExceptionType.TEAM_NOT_EXIST));
 
@@ -270,8 +258,10 @@ public class TeamService {
         }
 
         // 삭제할 멤버 조회
-        Member deleteMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(MemberExceptionType.MEMBER_NOT_EXIST));
+        Member deleteMember = memberRepository.findByEmail(removeMemberEmail);
+        if (deleteMember == null) {
+            throw new MemberException(MemberExceptionType.MEMBER_NOT_EXIST);
+        }
 
         // 팀에서 멤버가 있는지 확인
         if (deleteMember.getTeam() == null || !deleteMember.getTeam().getId().equals(team.getId())) {

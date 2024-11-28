@@ -11,9 +11,7 @@ import org.example.backendkickunity.chat.dto.ChatRoomDTO;
 import org.example.backendkickunity.chat.exception.ChatException;
 import org.example.backendkickunity.chat.exception.ChatExceptionType;
 import org.example.backendkickunity.chat.service.ChatService;
-import org.example.backendkickunity.chat.repository.ChatRoomRepository;
 import org.example.backendkickunity.member.domain.Member;
-import org.example.backendkickunity.member.repository.MemberRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +26,6 @@ import java.util.List;
 public class ChatController {
 
     private final ChatService chatService;
-    private final ChatRoomRepository chatRoomRepository;
-    private final MemberRepository memberRepository;
     private final AuthService authService;
 
     @PostMapping("/create")
@@ -64,25 +60,25 @@ public class ChatController {
     // 특정 채팅방의 메시지 기록 조회
     @GetMapping("/messages/{roomId}")
     public List<ChatMessageDTO> getChatMessages(@PathVariable Long roomId) {
-        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new ChatException(ChatExceptionType.CHATROOM_NOT_EXIST));
+        ChatRoom chatRoom = chatService.getChatRoomById(roomId);
+
         return chatService.getChatMessages(chatRoom);
     }
 
-    // 메시지 전송 (HTTP API에서 메시지 전송 후, WebSocket을 통해 실시간 처리)
+    // 메시지 전송 (HTTP API 에서 메시지 전송 후, WebSocket 을 통해 실시간 처리)
     @PostMapping("/send")
     public ResponseEntity<ChatMessageDTO> sendMessage(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                                       @RequestParam Long roomId,
                                                       @RequestParam String message,
                                                       @RequestParam Long senderId,
                                                       @RequestParam MessageType messageType) {
+
         // Authorization 헤더에서 로그인된 사용자 이메일 추출
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
         Member sender = chatService.getMemberByEmail(email);  // 로그인된 사용자 정보
 
         // roomId로 채팅방 조회
-        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new ChatException(ChatExceptionType.CHATROOM_NOT_EXIST));
+        ChatRoom chatRoom = chatService.getChatRoomById(roomId);
 
         // senderId로 사용자 조회 (이 값은 프론트에서 보내준 실제 발신자의 ID와 일치해야 함)
         if (!sender.getId().equals(senderId)) {

@@ -15,6 +15,7 @@ import org.example.backendkickunity.member.exception.MemberException;
 import org.example.backendkickunity.member.exception.MemberExceptionType;
 import org.example.backendkickunity.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -37,15 +38,27 @@ public class ChatService {
     private final MemberRepository memberRepository;
 
     private final ObjectMapper mapper = new ObjectMapper();  // ObjectMapper 초기화
-
     private final Map<Long, Set<WebSocketSession>> chatRoomSessionMap = new ConcurrentHashMap<>();  // 채팅방 세션 관리
 
+    // id 로 회원 정보 조회
+    @Transactional(readOnly = true)
     public Member getMemberById(Long id) {
         return memberRepository.findById(id)
                 .orElseThrow(() -> new MemberException(MemberExceptionType.MEMBER_NOT_EXIST));
     }
 
+    // 이메일로 회원 정보 조회
+    @Transactional(readOnly = true)
+    public Member getMemberByEmail(String email) {
+        Member findMember = memberRepository.findByEmail(email);
+        if (findMember == null) {
+            throw new MemberException(MemberExceptionType.MEMBER_NOT_EXIST);
+        }
+        return findMember;
+    }
+
     // 채팅방에서 메시지 전송
+    @Transactional
     public ChatMessage saveChatMessage(ChatRoom chatRoom, String message, Member sender, MessageType messageType) {
         // 새로운 메시지 객체 생성
         ChatMessage chatMessage = ChatMessage.builder()
@@ -60,21 +73,14 @@ public class ChatService {
     }
 
     // 채팅방 ID로 채팅방 조회
+    @Transactional(readOnly = true)
     public ChatRoom getChatRoomById(Long chatRoomId) {
         return chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new ChatException(ChatExceptionType.CHATROOM_NOT_EXIST));
     }
 
-    // 이메일로 회원 정보 조회
-    public Member getMemberByEmail(String email) {
-        Member findMember = memberRepository.findByEmail(email);
-        if (findMember == null) {
-            throw new MemberException(MemberExceptionType.MEMBER_NOT_EXIST);
-        }
-        return findMember;
-    }
-
     // 채팅방의 모든 메시지 조회
+    @Transactional(readOnly = true)
     public List<ChatMessageDTO> getChatMessages(ChatRoom chatRoom) {
         // 채팅방에 속한 모든 메시지를 최신순으로 조회
         List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomOrderByCreatedAtDesc(chatRoom);
@@ -86,6 +92,7 @@ public class ChatService {
     }
 
     // 채팅방 생성
+    @Transactional
     public ChatRoom createChatRoom(List<Member> members) {
         // 채팅방 생성
         ChatRoom chatRoom = ChatRoom.builder()
@@ -97,6 +104,7 @@ public class ChatService {
     }
 
     // 채팅방에 참여한 모든 세션에 실시간 메시지 전송
+    @Transactional
     public void sendRealTimeMessage(ChatRoom chatRoom, ChatMessage chatMessage) {
         // 채팅방에 참여한 모든 세션에 메시지 전송
         Set<WebSocketSession> sessions = chatRoomSessionMap.get(chatRoom.getId());
@@ -104,7 +112,7 @@ public class ChatService {
             for (WebSocketSession webSocketSession : sessions) {
                 if (webSocketSession.isOpen()) {
                     try {
-                        // JSON으로 변환하여 메시지 전송
+                        // JSON 으로 변환하여 메시지 전송
                         String jsonMessage = mapper.writeValueAsString(chatMessage);
                         webSocketSession.sendMessage(new TextMessage(jsonMessage));
                     } catch (IOException e) {

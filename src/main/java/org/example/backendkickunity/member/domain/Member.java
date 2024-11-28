@@ -37,7 +37,6 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Board> boards;  // 이 회원이 작성한 모든 게시물들
 
-    @ManyToMany(mappedBy = "members") // 이 회원이 참여한 모든 채팅방들
+    @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY) // 이 회원이 참여한 모든 채팅방들
     private List<ChatRoom> chatRooms;
 }
-

@@ -1,5 +1,6 @@
 package org.example.backendkickunity.board.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.backendkickunity.board.domain.Board;
 import org.example.backendkickunity.board.domain.BoardCategory;
 import org.example.backendkickunity.board.dto.AddBoardRequest;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class BoardService {
 
@@ -112,8 +114,8 @@ public class BoardService {
     public List<Board> searchBoards(String boardCategory, String keyword) {
         BoardCategory category = null;
 
-        // BoardCategory enum을 통한 카테고리 필터링
-        if (boardCategory != null && !boardCategory.isEmpty()) {
+        // 카테고리가 "All"인 경우 null로 처리
+        if (boardCategory != null && !boardCategory.isEmpty() && !boardCategory.equalsIgnoreCase("All")) {
             try {
                 category = BoardCategory.valueOf(boardCategory.toUpperCase());
             } catch (IllegalArgumentException e) {
@@ -121,12 +123,13 @@ public class BoardService {
             }
         }
 
+        log.info("카테고리: {}, 키워드: {}", category, keyword); // 로그 추가
+
         if (category != null) {
-            // 카테고리가 지정되면 해당 카테고리 내에서 키워드 검색 (최신순 정렬)
             return boardRepository.findAllByCategoryAndTitleContainingOrCategoryAndContentContaining(category, keyword);
         } else {
-            // 카테고리가 지정되지 않으면 모든 게시글에서 키워드 검색 (최신순 정렬)
             return boardRepository.findAllByTitleContainingOrContentContaining(keyword);
         }
     }
+
 }
