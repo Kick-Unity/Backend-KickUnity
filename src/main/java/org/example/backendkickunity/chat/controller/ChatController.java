@@ -3,17 +3,14 @@ package org.example.backendkickunity.chat.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.backendkickunity.auth.service.AuthService;
-import org.example.backendkickunity.chat.domain.ChatMessage;
+import org.example.backendkickunity.board.service.BoardService;
 import org.example.backendkickunity.chat.domain.ChatRoom;
-import org.example.backendkickunity.chat.domain.MessageType;
 import org.example.backendkickunity.chat.dto.ChatMessageDTO;
 import org.example.backendkickunity.chat.dto.ChatRoomDTO;
 import org.example.backendkickunity.chat.exception.ChatException;
 import org.example.backendkickunity.chat.exception.ChatExceptionType;
 import org.example.backendkickunity.chat.service.ChatService;
-import org.example.backendkickunity.chat.repository.ChatRoomRepository;
 import org.example.backendkickunity.member.domain.Member;
-import org.example.backendkickunity.member.repository.MemberRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,29 +25,27 @@ import java.util.List;
 public class ChatController {
 
     private final ChatService chatService;
-    private final ChatRoomRepository chatRoomRepository;
-    private final MemberRepository memberRepository;
     private final AuthService authService;
 
     @PostMapping("/create")
     public ResponseEntity<ChatRoomDTO> createChatRoom(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
-                                                      @RequestParam Long user2Id) {
+                                                      @RequestParam Long boardId) {
         // Authorization 헤더에서 로그인된 사용자 이메일 추출
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
-        Member user1 = chatService.getMemberByEmail(email);
+        Member currentUser = chatService.getMemberByEmail(email);
 
-        // user2 조회
-        Member user2 = chatService.getMemberById(user2Id);
+        // 현재 로그인한 사용자가 채팅을 원하는 게시글 작성자 멤버 조회
+        Member otherUser = chatService.getAuthorByBoardId(boardId);
 
         // user1과 user2를 리스트에 담기
         List<Member> members = new ArrayList<>();
-        members.add(user1);
-        members.add(user2);
+        members.add(currentUser);
+        members.add(otherUser);
 
         // 채팅방 생성
         ChatRoom savedChatRoom = chatService.createChatRoom(members);  // 수정된 서비스 호출
 
-        // ChatRoomDTO로 변환
+        // ChatRoomDTO 로 변환
         ChatRoomDTO chatRoomDTO = new ChatRoomDTO(
                 savedChatRoom.getId(),
                 new ChatRoomDTO.MemberDTO(savedChatRoom.getMembers().get(0).getId(), savedChatRoom.getMembers().get(0).getName()),  // currentUser
@@ -60,43 +55,37 @@ public class ChatController {
         return ResponseEntity.ok(chatRoomDTO);  // 생성된 채팅방 DTO 반환
     }
 
-
     // 특정 채팅방의 메시지 기록 조회
     @GetMapping("/messages/{roomId}")
     public List<ChatMessageDTO> getChatMessages(@PathVariable Long roomId) {
-        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new ChatException(ChatExceptionType.CHATROOM_NOT_EXIST));
+        ChatRoom chatRoom = chatService.getChatRoomById(roomId);
+
         return chatService.getChatMessages(chatRoom);
     }
 
-    // 메시지 전송 (HTTP API에서 메시지 전송 후, WebSocket을 통해 실시간 처리)
-    @PostMapping("/send")
-    public ResponseEntity<ChatMessageDTO> sendMessage(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
-                                                      @RequestParam Long roomId,
-                                                      @RequestParam String message,
-                                                      @RequestParam Long senderId,
-                                                      @RequestParam MessageType messageType) {
+    @DeleteMapping("/delete/{roomId}")
+    public ResponseEntity<String> deleteChatRoom(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                 @PathVariable Long roomId) {
         // Authorization 헤더에서 로그인된 사용자 이메일 추출
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
-        Member sender = chatService.getMemberByEmail(email);  // 로그인된 사용자 정보
+        Member member = chatService.getMemberByEmail(email);  // 로그인된 사용자 정보
 
-        // roomId로 채팅방 조회
-        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new ChatException(ChatExceptionType.CHATROOM_NOT_EXIST));
+        // 채팅방 조회
+        ChatRoom chatRoom = chatService.getChatRoomById(roomId);
 
-        // senderId로 사용자 조회 (이 값은 프론트에서 보내준 실제 발신자의 ID와 일치해야 함)
-        if (!sender.getId().equals(senderId)) {
-            throw new ChatException(ChatExceptionType.INVALID_SENDER);
+        // 채팅방에 참여한 사용자가 아니면 삭제 권한이 없음
+        if (!chatRoom.getMembers().contains(member)) {
+            throw new ChatException(ChatExceptionType.NOT_MEMBER_OF_CHATROOM);
         }
 
-        // 메시지 저장
-        ChatMessage chatMessage = chatService.saveChatMessage(chatRoom, message, sender, messageType);
+        // 채팅방 삭제
+        chatService.deleteChatRoom(chatRoom);
 
-        // 저장된 메시지를 실시간으로 전송
-        chatService.sendRealTimeMessage(chatRoom, chatMessage);
+        // 채팅방 삭제 후, WebSocket에서 해당 채팅방에 연결된 모든 세션 종료
+        chatService.disconnectChatRoomSessions(chatRoom);
 
-        // 저장된 메시지를 DTO로 변환하여 반환
-        return ResponseEntity.ok(ChatMessageDTO.fromEntity(chatMessage));  // 생성된 메시지 DTO 반환
+        return ResponseEntity.ok("채팅방이 삭제되었습니다.");
     }
+
 
 }

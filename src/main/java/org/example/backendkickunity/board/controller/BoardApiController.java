@@ -191,12 +191,13 @@ public class BoardApiController {
 
     // 제목에 포함된 키워드로 게시글 검색
     @GetMapping("/search")
-    public ResponseEntity<List<BoardSummaryResponse>> searchBoards(@RequestParam SearchBoardRequest request) {
-        log.info("게시글 제목 키워드 '{}'로 검색 요청을 받았습니다.", request.getKeyword());
-        List<Board> boards = boardService.searchBoards(request.getCategory(), request.getKeyword());
+    public ResponseEntity<List<BoardSummaryResponse>> searchBoards(@RequestParam String category,
+                                                                   @RequestParam String keyword) {
+        log.info("게시글 제목 키워드 '{}'로 검색 요청을 받았습니다.", keyword);
+        List<Board> boards = boardService.searchBoards(category, keyword);
 
         if (boards.isEmpty()) {
-            log.warn("키워드 '{}'로 검색한 게시글이 없습니다.", request.getKeyword());
+            log.warn("키워드 '{}'로 검색한 게시글이 없습니다.", keyword);
             return ResponseEntity.noContent().build();
         }
 
@@ -213,7 +214,7 @@ public class BoardApiController {
                 ))
                 .toList();
 
-        log.info("키워드 '{}'로 검색한 게시글 {}개가 성공적으로 조회되었습니다.", request.getKeyword(), boards.size());
+        log.info("키워드 '{}'로 검색한 게시글 {}개가 성공적으로 조회되었습니다.", keyword, boards.size());
         return ResponseEntity.ok(boardSummaryResponses);
     }
 }

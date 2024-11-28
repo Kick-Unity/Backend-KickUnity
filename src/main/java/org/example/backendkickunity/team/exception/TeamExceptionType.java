@@ -11,7 +11,7 @@ public enum TeamExceptionType implements BaseExceptionType {
     ALREADY_HAVE_TEAM(HttpStatus.BAD_REQUEST, "TEAM_002", "이미 팀 정보가 존재하는 회원입니다."),
     TEAM_NOT_EXIST(HttpStatus.BAD_REQUEST, "TEAM_003", "팀 정보가 존재하지 않습니다."),
     UNAUTHORIZED_TEAM_LEADER(HttpStatus.BAD_REQUEST, "TEAM_004", "해당 팀의 팀장 권한이 없습니다."),
-    NOT_YOUR_MEMBER(HttpStatus.BAD_REQUEST, "TEAM_005", "해당 팀의 멤버가 아닙니다.");
+    NOT_YOUR_MEMBER(HttpStatus.FORBIDDEN, "TEAM_005", "해당 팀의 멤버가 아닙니다.");
 
 
     private HttpStatus httpStatus;

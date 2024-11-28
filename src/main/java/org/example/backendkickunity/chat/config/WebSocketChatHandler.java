@@ -59,8 +59,8 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         // 채팅방에 세션 추가
         chatRoomSessionMap.computeIfAbsent(chatRoomId, k -> ConcurrentHashMap.newKeySet()).add(session);
 
-        // 연결된 사용자에게 확인 메시지 전송 (옵션)
-        session.sendMessage(new TextMessage("WebSocket 연결 성공"));
+        // 연결된 사용자에게 확인 메시지 전송
+        session.sendMessage(new TextMessage("채팅이 연결 되었어요!"));
         log.info("User {} connected to chat room {}", email, chatRoomId);
     }
 
@@ -118,7 +118,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             for (WebSocketSession webSocketSession : sessions) {
                 if (webSocketSession.isOpen()) {
                     try {
-                        // JSON으로 변환하여 메시지 전송
+                        // JSON 으로 변환하여 메시지 전송
                         String jsonMessage = mapper.writeValueAsString(chatMessage);
                         webSocketSession.sendMessage(new TextMessage(jsonMessage));
                     } catch (IOException e) {
@@ -133,7 +133,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
 
     // WebSocket 세션에서 채팅방 ID를 추출하는 방법 (예시)
     private Long getChatRoomIdFromSession(WebSocketSession session) {
-        // 세션에서 채팅방 ID를 추출하는 로직 (예시로 헤더나 속성에서 가져옴)
+        // 세션에서 채팅방 ID를 추출하는 로직
         return (Long) session.getAttributes().get("chatRoomId");
     }
 

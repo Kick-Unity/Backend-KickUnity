@@ -6,6 +6,7 @@ import org.example.backendkickunity.board.domain.Board;
 import org.example.backendkickunity.chat.domain.ChatRoom;
 import org.example.backendkickunity.global.entity.BaseEntity;
 import org.example.backendkickunity.team.domain.Team;
+
 import java.util.List;
 
 @Entity
@@ -34,10 +35,11 @@ public class Member extends BaseEntity {
     @ManyToOne
     private Team team;
 
+    // 이 회원이 작성한 모든 게시물
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Board> boards;  // 이 회원이 작성한 모든 게시물들
+    private List<Board> boards;
 
-    @ManyToMany(mappedBy = "members") // 이 회원이 참여한 모든 채팅방들
+    // 이 회원이 참여한 모든 채팅방
+    @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
     private List<ChatRoom> chatRooms;
 }
-

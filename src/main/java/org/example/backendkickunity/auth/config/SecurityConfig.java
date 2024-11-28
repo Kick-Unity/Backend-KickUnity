@@ -86,10 +86,12 @@ public class SecurityConfig{
 
         //경로별 인가 작업
         http.authorizeHttpRequests((auth) -> auth
+                .requestMatchers("/api/logout").permitAll()  // 로그아웃 경로 허용
                 .requestMatchers("/api/login", "/api/**", "/api/join", "/**", "api/member/**").permitAll()
                 .requestMatchers("/api/admin").hasRole("ADMIN")
                 .requestMatchers("/api/reissue").permitAll()
                 .anyRequest().authenticated());
+
 
         //LoginFilter 추가
         http
@@ -111,4 +113,7 @@ public class SecurityConfig{
 
         return http.build();
     }
+
+
+
 }

@@ -24,10 +24,11 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     List<Board> findAllByCategoryAndTitleContainingOrCategoryAndContentContaining(BoardCategory category, String keyword);
 
     // 제목 또는 내용에 키워드가 포함된 게시글을 최신순으로 조회
-    @Query("SELECT b FROM Board b WHERE b.title LIKE %:keyword% OR b.content LIKE %:keyword% " +
+    @Query("SELECT b FROM Board b WHERE (b.title LIKE %:keyword% OR b.content LIKE %:keyword%) " +
             "ORDER BY b.createdDate DESC")
     List<Board> findAllByTitleContainingOrContentContaining(String keyword);
 
     // 로그인한 회원의 이메일을 기준으로 게시글 조회 (최신순 정렬)
     List<Board> findAllByMemberEmailOrderByCreatedDateDesc(String email);
 }
+

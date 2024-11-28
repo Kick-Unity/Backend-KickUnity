@@ -16,24 +16,18 @@ import java.util.List;
 @Builder
 public class ChatRoom extends BaseEntity {
 
-    @ManyToOne
-    @JoinColumn(name = "user1_id")
-    private Member user1;  // 사용자 1
-
-    @ManyToOne
-    @JoinColumn(name = "user2_id")
-    private Member user2;  // 사용자 2
-
-    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<ChatMessage> chatMessages = new ArrayList<>();
-
-    @Builder.Default
+    // 채팅방에 속한 모든 사용자들
     @ManyToMany
     @JoinTable(
             name = "chat_room_member",
             joinColumns = @JoinColumn(name = "chat_room_id"),
             inverseJoinColumns = @JoinColumn(name = "member_id")
     )
+    @Builder.Default
     private List<Member> members = new ArrayList<>();  // 사용자 목록
+
+    // 채팅방 내의 모든 메시지들
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ChatMessage> chatMessages = new ArrayList<>();  // 채팅 메시지 목록
 }

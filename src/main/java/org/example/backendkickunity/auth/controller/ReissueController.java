@@ -104,8 +104,8 @@ public class ReissueController {
 
         Cookie cookie = new Cookie(key, value);
         cookie.setMaxAge(24*60*60);
-        //cookie.setSecure(true);
-        //cookie.setPath("/");
+        // cookie.setSecure(true);  // HTTPS 연결에서만 쿠키가 전송되도록 설정
+        cookie.setPath("/");     // 모든 경로에서 쿠키가 유효하도록 설정
         cookie.setHttpOnly(true);
 
         return cookie;

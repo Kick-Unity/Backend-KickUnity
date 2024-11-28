@@ -13,14 +13,14 @@ import org.example.backendkickunity.member.domain.Member;
 @Builder
 public class ChatMessage extends BaseEntity {
 
-    private String message; // 메세지 내용
+    private String message;  // 메시지 내용
 
     @Enumerated(EnumType.STRING)
-    private MessageType messageType;
+    private MessageType messageType;  // 메시지 타입
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_room_id")
-    private ChatRoom chatRoom;
+    private ChatRoom chatRoom;  // 해당 메시지가 속한 채팅방
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id")
