@@ -8,6 +8,8 @@ import org.example.backendkickunity.chat.domain.ChatRoom;
 import org.example.backendkickunity.chat.domain.MessageType;
 import org.example.backendkickunity.chat.dto.ChatMessageDTO;
 import org.example.backendkickunity.chat.dto.ChatRoomDTO;
+import org.example.backendkickunity.chat.exception.ChatException;
+import org.example.backendkickunity.chat.exception.ChatExceptionType;
 import org.example.backendkickunity.chat.service.ChatService;
 import org.example.backendkickunity.chat.repository.ChatRoomRepository;
 import org.example.backendkickunity.member.domain.Member;
@@ -35,7 +37,7 @@ public class ChatController {
                                                       @RequestParam Long user2Id) {
         // Authorization 헤더에서 로그인된 사용자 이메일 추출
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
-        Member user1 = chatService.getMemberByEmail(email);  // 서비스 계층에서 Member 조회
+        Member user1 = chatService.getMemberByEmail(email);
 
         // user2 조회
         Member user2 = chatService.getMemberById(user2Id);
@@ -63,7 +65,7 @@ public class ChatController {
     @GetMapping("/messages/{roomId}")
     public List<ChatMessageDTO> getChatMessages(@PathVariable Long roomId) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("채팅방이 존재하지 않습니다."));
+                .orElseThrow(() -> new ChatException(ChatExceptionType.CHATROOM_NOT_EXIST));
         return chatService.getChatMessages(chatRoom);
     }
 
@@ -80,17 +82,21 @@ public class ChatController {
 
         // roomId로 채팅방 조회
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("채팅방이 존재하지 않습니다."));
+                .orElseThrow(() -> new ChatException(ChatExceptionType.CHATROOM_NOT_EXIST));
 
         // senderId로 사용자 조회 (이 값은 프론트에서 보내준 실제 발신자의 ID와 일치해야 함)
         if (!sender.getId().equals(senderId)) {
-            throw new IllegalArgumentException("발신자 정보가 일치하지 않습니다.");
+            throw new ChatException(ChatExceptionType.INVALID_SENDER);
         }
 
         // 메시지 저장
         ChatMessage chatMessage = chatService.saveChatMessage(chatRoom, message, sender, messageType);
 
+        // 저장된 메시지를 실시간으로 전송
+        chatService.sendRealTimeMessage(chatRoom, chatMessage);
+
         // 저장된 메시지를 DTO로 변환하여 반환
         return ResponseEntity.ok(ChatMessageDTO.fromEntity(chatMessage));  // 생성된 메시지 DTO 반환
     }
+
 }

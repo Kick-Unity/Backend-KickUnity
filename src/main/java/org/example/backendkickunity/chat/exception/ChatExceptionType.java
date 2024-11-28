@@ -4,7 +4,8 @@ import org.example.backendkickunity.global.exception.BaseExceptionType;
 import org.springframework.http.HttpStatus;
 
 public enum ChatExceptionType implements BaseExceptionType {
-    ALREADY_EXIST_NAME(HttpStatus.BAD_REQUEST, "CHAT_001", "이미 가입된 이메일입니다.");
+    CHATROOM_NOT_EXIST(HttpStatus.NOT_FOUND, "CHAT_001", "채팅방이 존재하지 않습니다."),
+    INVALID_SENDER(HttpStatus.BAD_REQUEST, "CHAT_002", "발신자 정보가 유효하지 않습니다.");
 
     private HttpStatus httpStatus;
     private String errorCode;

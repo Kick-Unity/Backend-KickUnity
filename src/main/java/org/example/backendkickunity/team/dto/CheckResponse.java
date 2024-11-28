@@ -1,0 +1,12 @@
+package org.example.backendkickunity.team.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class CheckResponse {
+    private boolean success;  // 성공 여부
+    private String message;   // 응답 메시지
+}
+

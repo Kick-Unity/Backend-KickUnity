@@ -1,20 +1,33 @@
 package org.example.backendkickunity.chat.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.backendkickunity.chat.domain.ChatMessage;
 import org.example.backendkickunity.chat.domain.ChatRoom;
 import org.example.backendkickunity.chat.domain.MessageType;
 import org.example.backendkickunity.chat.dto.ChatMessageDTO;
+import org.example.backendkickunity.chat.exception.ChatException;
+import org.example.backendkickunity.chat.exception.ChatExceptionType;
 import org.example.backendkickunity.chat.repository.ChatMessageRepository;
 import org.example.backendkickunity.chat.repository.ChatRoomRepository;
 import org.example.backendkickunity.member.domain.Member;
+import org.example.backendkickunity.member.exception.MemberException;
+import org.example.backendkickunity.member.exception.MemberExceptionType;
 import org.example.backendkickunity.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 
-import java.util.ArrayList;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatService {
@@ -23,9 +36,13 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final MemberRepository memberRepository;
 
+    private final ObjectMapper mapper = new ObjectMapper();  // ObjectMapper 초기화
+
+    private final Map<Long, Set<WebSocketSession>> chatRoomSessionMap = new ConcurrentHashMap<>();  // 채팅방 세션 관리
+
     public Member getMemberById(Long id) {
         return memberRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. ID: " + id));
+                .orElseThrow(() -> new MemberException(MemberExceptionType.MEMBER_NOT_EXIST));
     }
 
     // 채팅방에서 메시지 전송
@@ -45,15 +62,17 @@ public class ChatService {
     // 채팅방 ID로 채팅방 조회
     public ChatRoom getChatRoomById(Long chatRoomId) {
         return chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new IllegalArgumentException("채팅방이 존재하지 않습니다."));
+                .orElseThrow(() -> new ChatException(ChatExceptionType.CHATROOM_NOT_EXIST));
     }
 
     // 이메일로 회원 정보 조회
     public Member getMemberByEmail(String email) {
-        return memberRepository.findByEmail(email);
-               // .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+        Member findMember = memberRepository.findByEmail(email);
+        if (findMember == null) {
+            throw new MemberException(MemberExceptionType.MEMBER_NOT_EXIST);
+        }
+        return findMember;
     }
-
 
     // 채팅방의 모든 메시지 조회
     public List<ChatMessageDTO> getChatMessages(ChatRoom chatRoom) {
@@ -77,5 +96,22 @@ public class ChatService {
         return chatRoomRepository.save(chatRoom);
     }
 
-
+    // 채팅방에 참여한 모든 세션에 실시간 메시지 전송
+    public void sendRealTimeMessage(ChatRoom chatRoom, ChatMessage chatMessage) {
+        // 채팅방에 참여한 모든 세션에 메시지 전송
+        Set<WebSocketSession> sessions = chatRoomSessionMap.get(chatRoom.getId());
+        if (sessions != null) {
+            for (WebSocketSession webSocketSession : sessions) {
+                if (webSocketSession.isOpen()) {
+                    try {
+                        // JSON으로 변환하여 메시지 전송
+                        String jsonMessage = mapper.writeValueAsString(chatMessage);
+                        webSocketSession.sendMessage(new TextMessage(jsonMessage));
+                    } catch (IOException e) {
+                        log.error("WebSocket 메시지 전송 실패: {}", e.getMessage());
+                    }
+                }
+            }
+        }
+    }
 }

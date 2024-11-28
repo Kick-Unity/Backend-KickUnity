@@ -59,17 +59,101 @@ public class TeamApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(teamId);
     }
 
-    // 팀 정보 수정(OK))
-    @PutMapping("/{teamId}")
-    public ResponseEntity<String> updateTeam(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+    // 팀 이름 수정
+    @PutMapping("/changeTeamName/{teamId}")
+    public ResponseEntity<String> updateTeamName(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                              @PathVariable Long teamId, @RequestBody UpdateTeamRequest request) {
         // Authorization header 에서 로그인 회원 이메일 추출
         String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
 
         // 팀 정보 수정
-        teamService.updateTeam(email, teamId, request);
+        teamService.updateTeamName(email, teamId, request.getSt());
 
-        log.info("팀 정보 수정 완료. 팀 ID: {}", teamId);
+        log.info("팀 이름 수정 완료. 팀 ID: {}", teamId);
+        return ResponseEntity.ok("팀 정보가 성공적으로 수정되었습니다.");
+    }
+
+    // 팀 종목 수정
+    @PutMapping("/changeTeamCategory/{teamId}")
+    public ResponseEntity<String> updateTeamCategory(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                             @PathVariable Long teamId, @RequestBody UpdateTeamRequest request) {
+        // Authorization header 에서 로그인 회원 이메일 추출
+        String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
+
+        // 팀 정보 수정
+        teamService.updateTeamCategory(email, teamId, request.getSt());
+
+        log.info("팀 이름 수정 완료. 팀 ID: {}", teamId);
+        return ResponseEntity.ok("팀 정보가 성공적으로 수정되었습니다.");
+    }
+
+    // 팀 창단일 수정
+    @PutMapping("/changeTeamStartDate/{teamId}")
+    public ResponseEntity<String> updateTeamStartDate(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                     @PathVariable Long teamId, @RequestBody UpdateTeamRequest request) {
+        // Authorization header 에서 로그인 회원 이메일 추출
+        String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
+
+        // 팀 정보 수정
+        teamService.updateTeamStartDate(email, teamId, request.getSt());
+
+        log.info("팀 이름 수정 완료. 팀 ID: {}", teamId);
+        return ResponseEntity.ok("팀 정보가 성공적으로 수정되었습니다.");
+    }
+
+    // 팀 지역 수정
+    @PutMapping("/changeTeamRegion/{teamId}")
+    public ResponseEntity<String> updateTeamRegion(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                      @PathVariable Long teamId, @RequestBody UpdateTeamRequest request) {
+        // Authorization header 에서 로그인 회원 이메일 추출
+        String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
+
+        // 팀 정보 수정
+        teamService.updateTeamRegion(email, teamId, request.getSt());
+
+        log.info("팀 이름 수정 완료. 팀 ID: {}", teamId);
+        return ResponseEntity.ok("팀 정보가 성공적으로 수정되었습니다.");
+    }
+
+    // 팀 연령대 수정
+    @PutMapping("/changeTeamAge/{teamId}")
+    public ResponseEntity<String> updateTeamAge(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                   @PathVariable Long teamId, @RequestBody UpdateTeamRequest request) {
+        // Authorization header 에서 로그인 회원 이메일 추출
+        String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
+
+        // 팀 정보 수정
+        teamService.updateTeamAge(email, teamId, request.getSt());
+
+        log.info("팀 이름 수정 완료. 팀 ID: {}", teamId);
+        return ResponseEntity.ok("팀 정보가 성공적으로 수정되었습니다.");
+    }
+
+    // 팀 소개 수정
+    @PutMapping("/changeTeamDescription/{teamId}")
+    public ResponseEntity<String> updateTeamDescription(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                @PathVariable Long teamId, @RequestBody UpdateTeamRequest request) {
+        // Authorization header 에서 로그인 회원 이메일 추출
+        String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
+
+        // 팀 정보 수정
+        teamService.updateTeamDescription(email, teamId, request.getSt());
+
+        log.info("팀 이름 수정 완료. 팀 ID: {}", teamId);
+        return ResponseEntity.ok("팀 정보가 성공적으로 수정되었습니다.");
+    }
+
+    // 팀 사이즈 수정
+    @PutMapping("/changeTeamSize/{teamId}")
+    public ResponseEntity<String> updateTeamSize(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
+                                                        @PathVariable Long teamId, @RequestBody UpdateTeamRequest request) {
+        // Authorization header 에서 로그인 회원 이메일 추출
+        String email = authService.extractEmailFromAuthorizationHeader(authorizationHeader);
+
+        // 팀 정보 수정
+        teamService.updateTeamSize(email, teamId, request.getNumber());
+
+        log.info("팀 이름 수정 완료. 팀 ID: {}", teamId);
         return ResponseEntity.ok("팀 정보가 성공적으로 수정되었습니다.");
     }
 
