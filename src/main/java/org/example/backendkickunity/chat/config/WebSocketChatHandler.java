@@ -39,7 +39,6 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
     // WebSocket 연결이 성공적으로 이루어졌을 때 호출
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-
         // Authorization 헤더에서 로그인된 사용자 이메일 추출
         String authHeader = session.getHandshakeHeaders().getFirst("Authorization");
         String email = authService.extractEmailFromAuthorizationHeader(authHeader); // 이메일 추출
@@ -51,10 +50,21 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
             return;
         }
 
-        // 세션에 사용자 정보 및 채팅방 ID 저장
+        // 이메일을 통해 회원 정보 조회
+        Member member = memberRepository.findByEmail(email);
+        if (member == null) {
+            session.close(CloseStatus.BAD_DATA);
+            log.error("인증 실패: 유효하지 않은 사용자");
+            return;
+        }
+
+        // 세션에 이메일과 이름 저장
+        session.getAttributes().put("userEmail", email);
+        session.getAttributes().put("userName", member.getName());  // 사용자 이름 추가
+
+        // 세션에 채팅방 ID 저장
         Long chatRoomId = getChatRoomIdFromSession(session);
         session.getAttributes().put("chatRoomId", chatRoomId);
-        session.getAttributes().put("userEmail", email);  // 사용자 이메일 저장
 
         // 채팅방에 세션 추가
         chatRoomSessionMap.computeIfAbsent(chatRoomId, k -> ConcurrentHashMap.newKeySet()).add(session);
@@ -63,6 +73,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         session.sendMessage(new TextMessage("채팅이 연결 되었어요!"));
         log.info("User {} connected to chat room {}", email, chatRoomId);
     }
+
 
     // WebSocket 연결이 끊어졌을 때 호출
     @Override
@@ -131,7 +142,7 @@ public class WebSocketChatHandler extends TextWebSocketHandler {
         }
     }
 
-    // WebSocket 세션에서 채팅방 ID를 추출하는 방법 (예시)
+    // WebSocket 세션에서 채팅방 ID를 추출하는 방법
     private Long getChatRoomIdFromSession(WebSocketSession session) {
         // 세션에서 채팅방 ID를 추출하는 로직
         return (Long) session.getAttributes().get("chatRoomId");
