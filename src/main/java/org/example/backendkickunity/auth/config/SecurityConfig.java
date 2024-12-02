@@ -6,12 +6,14 @@ import org.example.backendkickunity.global.filter.JWTFilter;
 import org.example.backendkickunity.global.util.JWTUtil;
 import org.example.backendkickunity.global.filter.LoginFilter;
 import org.example.backendkickunity.member.repository.RefreshRepository;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -35,6 +37,12 @@ public class SecurityConfig{
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 
     @Bean
@@ -84,26 +92,22 @@ public class SecurityConfig{
         http
                 .httpBasic((auth) -> auth.disable());
 
+
         //경로별 인가 작업
         http.authorizeHttpRequests((auth) -> auth
+                .requestMatchers(("/api/login")).permitAll()
                 .requestMatchers("/api/logout").permitAll()  // 로그아웃 경로 허용
-                .requestMatchers("/api/login", "/api/**", "/api/join", "/**", "api/member/**").permitAll()
+                .requestMatchers("/api/**", "/api/join", "/**", "api/member/**").permitAll()
                 .requestMatchers("/api/admin").hasRole("ADMIN")
                 .requestMatchers("/api/reissue").permitAll()
                 .anyRequest().authenticated());
 
 
-        //LoginFilter 추가
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class)  // 로그인 필터가 UsernamePasswordAuthenticationFilter 앞에 오도록 설정
+                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class)
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);  // 로그아웃 필터가 LogoutFilter 앞에 오도록 설정
 
-        //JWTFilter 추가
-        http
-                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
-
-
-        http
-                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
 
         //세션 설정
         http

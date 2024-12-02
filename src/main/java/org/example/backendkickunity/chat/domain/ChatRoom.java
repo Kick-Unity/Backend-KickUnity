@@ -27,7 +27,8 @@ public class ChatRoom extends BaseEntity {
     private List<Member> members = new ArrayList<>();  // 사용자 목록
 
     // 채팅방 내의 모든 메시지들
-    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "chat_room_id")  // 외래 키를 명시적으로 지정
     @Builder.Default
     private List<ChatMessage> chatMessages = new ArrayList<>();  // 채팅 메시지 목록
 }

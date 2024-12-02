@@ -35,4 +35,3 @@ public enum ChatExceptionType implements BaseExceptionType {
     }
 
 }
-

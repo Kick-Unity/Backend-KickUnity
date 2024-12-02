@@ -42,6 +42,6 @@ public class Team extends BaseEntity {
     private Member teamLeader; // 팀장
 
     @OneToMany(mappedBy = "team") // Member 엔터티의 team 필드와 매핑
-    @Builder.Default // @Builder가 List의 기본값을 적용하도록 함
+    @Builder.Default
     private List<Member> members = new ArrayList<>(); // List 초기화
 }
