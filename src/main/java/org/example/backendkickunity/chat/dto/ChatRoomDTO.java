@@ -23,4 +23,3 @@ public class ChatRoomDTO {
         private String name; // 사용자 이름
     }
 }
-

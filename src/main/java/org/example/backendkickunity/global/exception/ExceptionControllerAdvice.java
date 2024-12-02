@@ -1,4 +1,3 @@
-// ExceptionControllerAdvice.java
 package org.example.backendkickunity.global.exception;
 
 import jakarta.mail.MessagingException;

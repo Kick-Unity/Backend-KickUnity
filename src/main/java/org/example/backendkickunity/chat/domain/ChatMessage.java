@@ -26,3 +26,4 @@ public class ChatMessage extends BaseEntity {
     @JoinColumn(name = "sender_id")
     private Member sender;  // 메시지 발신자
 }
+
