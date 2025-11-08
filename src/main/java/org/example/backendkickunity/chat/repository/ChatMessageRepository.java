@@ -1,0 +1,19 @@
+package org.example.backendkickunity.chat.repository;
+
+import org.example.backendkickunity.chat.domain.ChatMessage;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
+
+    // 특정 채팅방에 속한 메시지들 조회 (최신 메시지 먼저)
+    @Query("SELECT cm FROM ChatMessage cm WHERE cm.chatRoom.id = :chatRoomId ORDER BY cm.createdDate DESC")
+    List<ChatMessage> findByChatRoomIdOrderByCreatedAtDesc(Long chatRoomId);
+
+    // 채팅방 ID로 메시지 목록을 조회하는 메서드
+    List<ChatMessage> findByChatRoomId(Long chatRoomId);
+}
